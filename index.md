@@ -1,4 +1,3 @@
 # Hello World
 
-### Let's talk
-### [joshua@penman.dev](mailto:joshua@penman.dev)
+### [📧 joshua@penman.dev](mailto:joshua@penman.dev)
