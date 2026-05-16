@@ -205,6 +205,34 @@
       border-radius: 14px 14px 0 0;
     }
 
+    /* ── Linked card overlay ───────────────────────────────────────── */
+    .card-link-fill {
+      position: absolute;
+      inset: 0;
+      border-radius: 14px;
+      z-index: 1;
+    }
+    .card-linked .card-footer {
+      position: relative;
+      z-index: 2;
+    }
+    .card-arrow {
+      position: absolute;
+      top: 1.25rem;
+      right: 1.4rem;
+      font-size: 0.9rem;
+      line-height: 1;
+      color: var(--c);
+      opacity: 0;
+      transition: opacity 0.15s, transform 0.15s;
+      z-index: 3;
+      pointer-events: none;
+    }
+    .card-linked:hover .card-arrow {
+      opacity: 1;
+      transform: translateX(3px);
+    }
+
     /* ── Card header ───────────────────────────────────────────────── */
     .card-header {
       display: flex;
@@ -420,7 +448,7 @@
       <div class="projects-grid">
 
         <!-- ─── Scriptoria ──────────────────────────────────────────── -->
-        <div class="card" style="
+        <div class="card card-linked" style="
           --c:           #c08a38;
           --icon-bg:     rgba(192, 138, 56, 0.12);
           --icon-border: rgba(192, 138, 56, 0.22);
@@ -428,6 +456,8 @@
           --tag-border:  rgba(192, 138, 56, 0.22);
         ">
           <div class="card-stripe"></div>
+          <a href="/scriptoria/" class="card-link-fill" aria-label="View Scriptoria project page"></a>
+          <span class="card-arrow" aria-hidden="true">&rarr;</span>
           <div class="card-header">
             <div class="card-icon">
               <svg viewBox="0 0 24 24">

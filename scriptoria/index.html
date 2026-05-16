@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Scriptoria — sermon and Bible study notes that never leave your browser." />
+  <title>Scriptoria — Joshua Penman</title>
+  <style>
+    :root {
+      --bg:          #f5f4f0;
+      --bg-card:     #ffffff;
+      --bg-hdr:      rgba(245, 244, 240, 0.88);
+      --text:        #18170f;
+      --text-dim:    #6b6860;
+      --border:      #e2e0da;
+      --border-card: #e8e6e1;
+      --shadow-card: 0 1px 4px rgba(0,0,0,0.06), 0 4px 12px rgba(0,0,0,0.04);
+      --shadow-up:   0 2px 8px rgba(0,0,0,0.08), 0 8px 24px rgba(0,0,0,0.07);
+      --accent:      #1d4ed8;
+      --c:           #c08a38;
+    }
+    [data-theme="dark"] {
+      --bg:          #111009;
+      --bg-card:     #1b1a14;
+      --bg-hdr:      rgba(17, 16, 9, 0.90);
+      --text:        #e5e3db;
+      --text-dim:    #8a8780;
+      --border:      #282720;
+      --border-card: #28261e;
+      --shadow-card: 0 1px 4px rgba(0,0,0,0.3), 0 4px 12px rgba(0,0,0,0.2);
+      --shadow-up:   0 2px 8px rgba(0,0,0,0.4), 0 8px 24px rgba(0,0,0,0.3);
+      --accent:      #60a5fa;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── Header ────────────────────────────────────────────────────── */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      height: 56px;
+      padding: 0 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--bg-hdr);
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      transition: background 0.2s, border-color 0.2s;
+    }
+
+    .back-link {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-family: "Courier New", Courier, monospace;
+      font-size: 0.78rem;
+      letter-spacing: 0.02em;
+      color: var(--text-dim);
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+    .back-link:hover { color: var(--text); }
+    .back-link svg {
+      width: 13px; height: 13px;
+      stroke: currentColor; fill: none;
+      stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+      flex-shrink: 0;
+    }
+
+    .theme-btn {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+      cursor: pointer;
+      padding: 0.35rem 0.8rem;
+      border-radius: 6px;
+      font-size: 0.78rem;
+      font-family: inherit;
+      line-height: 1;
+      transition: border-color 0.15s, color 0.15s;
+    }
+    .theme-btn:hover { border-color: var(--text-dim); color: var(--text); }
+    .theme-btn svg {
+      width: 13px; height: 13px;
+      stroke: currentColor; fill: none;
+      stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+      flex-shrink: 0;
+    }
+
+    /* ── Project hero ──────────────────────────────────────────────── */
+    .proj-hero {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 5rem 2rem 3.5rem;
+      display: flex;
+      align-items: flex-start;
+      gap: 2.5rem;
+    }
+
+    .proj-logo {
+      width: 76px;
+      height: 76px;
+      border-radius: 16px;
+      background: #2a2118;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-family: 'Times New Roman', Times, serif;
+      font-size: 3rem;
+      font-weight: 700;
+      color: #fffaf1;
+      box-shadow: 0 2px 16px color-mix(in srgb, var(--c) 30%, transparent);
+    }
+
+    .proj-hero-body { flex: 1; }
+
+    .proj-eyebrow {
+      font-family: "Courier New", Courier, monospace;
+      font-size: 0.72rem;
+      color: var(--text-dim);
+      letter-spacing: 0.06em;
+      margin-bottom: 0.7rem;
+      display: flex;
+      align-items: center;
+      gap: 0.55rem;
+    }
+    .proj-eyebrow::before {
+      content: '';
+      display: block;
+      width: 20px;
+      height: 1px;
+      background: currentColor;
+      flex-shrink: 0;
+    }
+
+    h1.proj-title {
+      font-size: clamp(2.25rem, 5vw, 3.75rem);
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      line-height: 1.05;
+      color: var(--c);
+      margin-bottom: 0.75rem;
+    }
+
+    .proj-tagline {
+      font-size: 1rem;
+      color: var(--text-dim);
+      line-height: 1.65;
+      max-width: 500px;
+      margin-bottom: 1.4rem;
+    }
+
+    /* ── Platform strip ────────────────────────────────────────────── */
+    .platforms {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+    .plat-label {
+      font-family: "Courier New", Courier, monospace;
+      font-size: 0.68rem;
+      color: var(--text-dim);
+      letter-spacing: 0.04em;
+    }
+    .plat {
+      display: flex;
+      align-items: center;
+      gap: 0.28rem;
+      font-family: "Courier New", Courier, monospace;
+      font-size: 0.68rem;
+      color: var(--text-dim);
+    }
+    .plat svg {
+      width: 13px; height: 13px;
+      fill: currentColor;
+      flex-shrink: 0;
+    }
+
+    .tags {
+      display: flex;
+      gap: 0.3rem;
+      flex-wrap: wrap;
+    }
+    .tag {
+      font-family: "Courier New", Courier, monospace;
+      font-size: 0.68rem;
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      background: color-mix(in srgb, var(--c) 10%, transparent);
+      color: var(--c);
+      border: 1px solid color-mix(in srgb, var(--c) 22%, transparent);
+      white-space: nowrap;
+    }
+
+    /* ── Content ───────────────────────────────────────────────────── */
+    .proj-content {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 0 2rem 5rem;
+    }
+
+    .proj-section { margin-bottom: 3.5rem; }
+
+    .section-label {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+    }
+    .section-label span {
+      font-family: "Courier New", Courier, monospace;
+      font-size: 0.7rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      white-space: nowrap;
+    }
+    .section-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    .prose p {
+      font-size: 0.94rem;
+      line-height: 1.8;
+      color: var(--text-dim);
+      margin-bottom: 1.1rem;
+    }
+    .prose p:last-child { margin-bottom: 0; }
+    .prose p strong { color: var(--text); font-weight: 600; }
+
+    /* ── Screenshots ───────────────────────────────────────────────── */
+    .screenshots-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+    }
+
+    figure {
+      background: var(--bg-card);
+      border: 1px solid var(--border-card);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: var(--shadow-card);
+    }
+
+    .screenshot-ph {
+      aspect-ratio: 16 / 10;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: color-mix(in srgb, var(--c) 7%, var(--bg-card));
+      border-bottom: 1px solid var(--border-card);
+    }
+    .screenshot-ph svg {
+      width: 32px; height: 32px;
+      stroke: var(--c);
+      fill: none;
+      stroke-width: 1.5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      opacity: 0.45;
+    }
+
+    figcaption {
+      padding: 0.6rem 1rem;
+      font-size: 0.72rem;
+      color: var(--text-dim);
+      font-family: "Courier New", Courier, monospace;
+    }
+
+    /* ── Features grid ─────────────────────────────────────────────── */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+    }
+
+    .feature-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-card);
+      border-radius: 12px;
+      padding: 1.15rem;
+      box-shadow: var(--shadow-card);
+    }
+
+    .feature-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      background: color-mix(in srgb, var(--c) 12%, transparent);
+      border: 1px solid color-mix(in srgb, var(--c) 22%, transparent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 0.75rem;
+    }
+    .feature-icon svg {
+      width: 16px; height: 16px;
+      stroke: var(--c);
+      fill: none;
+      stroke-width: 1.75;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .feature-title {
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: -0.015em;
+      color: var(--text);
+      margin-bottom: 0.3rem;
+    }
+
+    .feature-desc {
+      font-size: 0.78rem;
+      color: var(--text-dim);
+      line-height: 1.6;
+    }
+
+    /* ── Getting started ───────────────────────────────────────────── */
+    .launch-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      background: var(--c);
+      color: #fff;
+      text-decoration: none;
+      padding: 0.65rem 1.3rem;
+      border-radius: 8px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      margin-top: 0.5rem;
+      transition: filter 0.15s, transform 0.15s;
+    }
+    .launch-btn:hover { filter: brightness(1.08); transform: translateY(-1px); }
+    .launch-btn svg {
+      width: 13px; height: 13px;
+      stroke: currentColor; fill: none;
+      stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+    }
+
+    .install-note {
+      margin-top: 0.9rem;
+      font-size: 0.8rem;
+      color: var(--text-dim);
+      line-height: 1.6;
+    }
+
+    /* ── Links row ─────────────────────────────────────────────────── */
+    .proj-links-row {
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+      flex-wrap: wrap;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .proj-link {
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      font-size: 0.82rem;
+      color: var(--text-dim);
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+    .proj-link:hover { color: var(--c); }
+    .proj-link svg {
+      width: 12px; height: 12px;
+      stroke: currentColor; fill: none;
+      stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+    }
+
+    /* ── Footer ────────────────────────────────────────────────────── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 1.5rem 2rem;
+      text-align: center;
+      font-size: 0.78rem;
+      color: var(--text-dim);
+      transition: border-color 0.2s;
+    }
+    footer a { color: inherit; text-decoration: none; transition: color 0.15s; }
+    footer a:hover { color: var(--text); }
+
+    /* ── Responsive ────────────────────────────────────────────────── */
+    @media (max-width: 680px) {
+      .proj-hero { flex-direction: column; gap: 1.25rem; padding: 2.5rem 1.25rem 2rem; }
+      .proj-content { padding: 0 1.25rem 3.5rem; }
+      .screenshots-grid { grid-template-columns: 1fr; }
+      .features-grid { grid-template-columns: 1fr; }
+      header { padding: 0 1.25rem; }
+    }
+    @media (min-width: 681px) and (max-width: 860px) {
+      .features-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <a href="/" class="back-link">
+      <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+      Back
+    </a>
+    <button class="theme-btn" onclick="toggleTheme()" aria-label="Toggle colour scheme">
+      <svg id="theme-icon" viewBox="0 0 24 24">
+        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+      </svg>
+      <span id="theme-label">Dark</span>
+    </button>
+  </header>
+
+  <main>
+
+    <section class="proj-hero">
+      <div class="proj-logo">S</div>
+      <div class="proj-hero-body">
+        <p class="proj-eyebrow">project</p>
+        <h1 class="proj-title">Scriptoria</h1>
+        <p class="proj-tagline">Sermon &amp; Bible study notes that never leave your browser.</p>
+        <div class="platforms">
+          <span class="plat-label">Runs on</span>
+          <span class="plat" title="Runs in any modern browser">
+            <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="7" r="6"/><path d="M7 1c-2 2-3 3.8-3 6s1 4 3 6M7 1c2 2 3 3.8 3 6s-1 4-3 6M1 7h12"/><path d="M2 4h10M2 10h10"/></svg>
+            Any browser
+          </span>
+        </div>
+        <div class="tags">
+          <span class="tag">JavaScript</span>
+          <span class="tag">PWA</span>
+          <span class="tag">IndexedDB</span>
+          <span class="tag">Service Worker</span>
+        </div>
+      </div>
+    </section>
+
+    <div class="proj-content">
+
+      <section class="proj-section">
+        <div class="section-label"><span>Overview</span></div>
+        <div class="prose">
+          <p>Scriptoria started as a personal frustration. Every note-taking app I tried either required an account, stored your notes on someone else&rsquo;s server, or charged a subscription for the privilege of writing things down. If you&rsquo;re the kind of person who fills the margins of a paper Bible, you deserve a digital tool that respects that same intimacy.</p>
+          <p>The entire app runs in your browser. Your notes live in <strong>IndexedDB</strong> &mdash; a local database built into every modern browser. No sign-up form, no email verification, no subscription nag screen. You open the URL, start writing, and your notes are there next time you open it.</p>
+          <p>Where Scriptoria goes further than a plain note editor is the <strong>scripture integration</strong>. You can browse or search any included translation, drop a passage reference into a note, and have the verse text inline without switching tabs. The app bundles several public-domain and open-licence translations, so it works completely offline from the first load.</p>
+          <p>For those who want their notes across devices, optional <strong>cloud sync</strong> via Google Drive or OneDrive is available. It&rsquo;s entirely opt-in &mdash; connect your own cloud storage and Scriptoria reads and writes your notes there. No Scriptoria accounts, no Scriptoria servers.</p>
+        </div>
+      </section>
+
+      <section class="proj-section">
+        <div class="section-label"><span>Screenshots</span></div>
+        <div class="screenshots-grid">
+          <figure>
+            <div class="screenshot-ph">
+              <svg viewBox="0 0 24 24"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/></svg>
+            </div>
+            <figcaption>Note editor with scripture reference panel</figcaption>
+          </figure>
+          <figure>
+            <div class="screenshot-ph">
+              <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            </div>
+            <figcaption>Full-text scripture search across all translations</figcaption>
+          </figure>
+          <figure>
+            <div class="screenshot-ph">
+              <svg viewBox="0 0 24 24"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+            </div>
+            <figcaption>Cloud sync &mdash; connect Google Drive or OneDrive</figcaption>
+          </figure>
+          <figure>
+            <div class="screenshot-ph">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
+            </div>
+            <figcaption>Theme picker &mdash; over 50 themes</figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <section class="proj-section">
+        <div class="section-label"><span>Features</span></div>
+        <div class="features-grid">
+
+          <div class="feature-card">
+            <div class="feature-icon">
+              <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            </div>
+            <p class="feature-title">Offline-first PWA</p>
+            <p class="feature-desc">Installs to your home screen and works without a connection from the very first load &mdash; the service worker caches the whole app.</p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon">
+              <svg viewBox="0 0 24 24"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/></svg>
+            </div>
+            <p class="feature-title">Rich note editor</p>
+            <p class="feature-desc">Format notes with headings, bold, italic, and lists, then link them to a sermon date, speaker, and scripture passage.</p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon">
+              <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            </div>
+            <p class="feature-title">Scripture search</p>
+            <p class="feature-desc">Find any verse instantly with full-text search across all bundled translations, without leaving the note you&rsquo;re writing.</p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon">
+              <svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+            </div>
+            <p class="feature-title">Multiple translations</p>
+            <p class="feature-desc">Switch between several public-domain and open-licence Bible translations without downloading anything extra.</p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon">
+              <svg viewBox="0 0 24 24"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+            </div>
+            <p class="feature-title">Optional cloud sync</p>
+            <p class="feature-desc">Connect your own Google Drive or OneDrive to back up and sync notes across devices &mdash; no Scriptoria account required.</p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
+            </div>
+            <p class="feature-title">50+ themes</p>
+            <p class="feature-desc">From warm amber parchment to deep cathedral black &mdash; choose a look that matches how you like to read and write.</p>
+          </div>
+
+        </div>
+      </section>
+
+      <section class="proj-section">
+        <div class="section-label"><span>Getting Started</span></div>
+        <div class="prose">
+          <p>Scriptoria is a web app &mdash; nothing to install. Open it in any modern browser and it&rsquo;s ready to go. You can also add it to your home screen as a PWA for a full-screen, offline-capable experience.</p>
+        </div>
+        <a class="launch-btn" href="https://joshua.penman.dev/ChurchScribe/" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          Open Scriptoria
+        </a>
+        <p class="install-note">Works in Chrome, Firefox, Safari, Edge. No account or sign-in needed.</p>
+      </section>
+
+      <div class="proj-links-row">
+        <a class="proj-link" href="https://github.com/KiwiGeek/ChurchScribe" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+          GitHub
+        </a>
+        <a class="proj-link" href="https://joshua.penman.dev/ChurchScribe/" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          Live app
+        </a>
+      </div>
+
+    </div>
+
+  </main>
+
+  <footer>
+    <p>Joshua Penman &nbsp;&middot;&nbsp; <a href="https://github.com/KiwiGeek" target="_blank" rel="noopener">@KiwiGeek</a> &nbsp;&middot;&nbsp; <a id="sig"></a></p>
+  </footer>
+
+  <script>
+    const ICON_MOON = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
+    const ICON_SUN  = '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>';
+
+    const root  = document.documentElement;
+    const icon  = document.getElementById('theme-icon');
+    const label = document.getElementById('theme-label');
+
+    let dark = localStorage.getItem('theme') === 'dark'
+      || (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches);
+
+    function applyTheme() {
+      root.setAttribute('data-theme', dark ? 'dark' : 'light');
+      icon.innerHTML  = dark ? ICON_SUN : ICON_MOON;
+      label.textContent = dark ? 'Light' : 'Dark';
+      localStorage.setItem('theme', dark ? 'dark' : 'light');
+    }
+
+    function toggleTheme() {
+      dark = !dark;
+      applyTheme();
+    }
+
+    window.matchMedia('(prefers-color-scheme: dark)')
+      .addEventListener('change', e => {
+        if (!localStorage.getItem('theme')) { dark = e.matches; applyTheme(); }
+      });
+
+    applyTheme();
+
+    (function() {
+      const k = [0x42, 0x17, 0x3F];
+      const d = [40,120,76,42,98,94,2,103,90,44,122,94,44,57,91,39,97];
+      const s = d.map((c, i) => String.fromCharCode(c ^ k[i % k.length])).join('');
+      const n = document.getElementById('sig');
+      n.href = 'mai' + 'lto:' + s;
+      n.textContent = s;
+    })();
+  </script>
+
+</body>
+</html>
