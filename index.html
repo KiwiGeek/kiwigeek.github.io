@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Joshua Penman — software developer." />
+  <title>Joshua Penman</title>
+  <style>
+    /* ── Tokens ────────────────────────────────────────────────────── */
+    :root {
+      --bg:          #f5f4f0;
+      --bg-card:     #ffffff;
+      --bg-hdr:      rgba(245, 244, 240, 0.88);
+      --text:        #18170f;
+      --text-dim:    #6b6860;
+      --border:      #e2e0da;
+      --border-card: #e8e6e1;
+      --shadow-card: 0 1px 4px rgba(0,0,0,0.06), 0 4px 12px rgba(0,0,0,0.04);
+      --shadow-up:   0 2px 8px rgba(0,0,0,0.08), 0 8px 24px rgba(0,0,0,0.07);
+      --accent:      #1d4ed8;
+    }
+    [data-theme="dark"] {
+      --bg:          #111009;
+      --bg-card:     #1b1a14;
+      --bg-hdr:      rgba(17, 16, 9, 0.90);
+      --text:        #e5e3db;
+      --text-dim:    #8a8780;
+      --border:      #282720;
+      --border-card: #28261e;
+      --shadow-card: 0 1px 4px rgba(0,0,0,0.3), 0 4px 12px rgba(0,0,0,0.2);
+      --shadow-up:   0 2px 8px rgba(0,0,0,0.4), 0 8px 24px rgba(0,0,0,0.3);
+      --accent:      #60a5fa;
+    }
+
+    /* ── Reset ─────────────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── Header ────────────────────────────────────────────────────── */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      height: 56px;
+      padding: 0 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--bg-hdr);
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      transition: background 0.2s, border-color 0.2s;
+    }
+
+    .wordmark {
+      font-family: "Courier New", Courier, monospace;
+      font-size: 0.9rem;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      color: var(--text);
+      text-decoration: none;
+      user-select: none;
+    }
+    .wordmark em { font-style: normal; color: var(--accent); }
+
+    .theme-btn {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+      cursor: pointer;
+      padding: 0.35rem 0.8rem;
+      border-radius: 6px;
+      font-size: 0.78rem;
+      font-family: inherit;
+      line-height: 1;
+      transition: border-color 0.15s, color 0.15s;
+    }
+    .theme-btn:hover {
+      border-color: var(--text-dim);
+      color: var(--text);
+    }
+    .theme-btn svg {
+      width: 13px; height: 13px;
+      stroke: currentColor; fill: none;
+      stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+      flex-shrink: 0;
+    }
+
+    /* ── Hero ──────────────────────────────────────────────────────── */
+    .hero {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 5.5rem 2rem 3.5rem;
+    }
+
+    .eyebrow {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-family: "Courier New", Courier, monospace;
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      letter-spacing: 0.06em;
+      margin-bottom: 1.5rem;
+    }
+    .eyebrow::before {
+      content: '';
+      display: block;
+      width: 26px;
+      height: 1px;
+      background: currentColor;
+      flex-shrink: 0;
+    }
+
+    h1 {
+      font-size: clamp(2.75rem, 6vw, 4.5rem);
+      font-weight: 800;
+      letter-spacing: -0.045em;
+      line-height: 1.04;
+      color: var(--text);
+      margin-bottom: 1.5rem;
+    }
+
+    .hero-sub {
+      font-size: 1.1rem;
+      color: var(--text-dim);
+      line-height: 1.75;
+      max-width: 480px;
+    }
+
+    /* ── Section label ─────────────────────────────────────────────── */
+    .section-header {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 0 2rem 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .section-header span {
+      font-family: "Courier New", Courier, monospace;
+      font-size: 0.7rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      white-space: nowrap;
+    }
+    .section-header::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* ── Grid ──────────────────────────────────────────────────────── */
+    .grid-wrap {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 0 2rem 2rem;
+    }
+
+    .projects-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+    }
+
+    /* ── Card ──────────────────────────────────────────────────────── */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-card);
+      border-radius: 14px;
+      padding: 1.6rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      box-shadow: var(--shadow-card);
+      position: relative;
+      overflow: hidden;
+      transition: box-shadow 0.2s, border-color 0.2s, transform 0.2s, background 0.2s;
+    }
+    .card:hover {
+      box-shadow: var(--shadow-up);
+      border-color: var(--c);
+      transform: translateY(-2px);
+    }
+
+    .card-stripe {
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: var(--c);
+      border-radius: 14px 14px 0 0;
+    }
+
+    /* ── Card header ───────────────────────────────────────────────── */
+    .card-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.9rem;
+    }
+
+    .card-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--icon-bg);
+      border: 1px solid var(--icon-border);
+    }
+    .card-icon svg {
+      width: 21px; height: 21px;
+      stroke: var(--c);
+      fill: none;
+      stroke-width: 1.75;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .card-name {
+      font-size: 1.05rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: var(--text);
+      margin-bottom: 0.2rem;
+    }
+    .card-tagline {
+      font-size: 0.8rem;
+      color: var(--text-dim);
+      line-height: 1.45;
+    }
+
+    /* ── Card body ─────────────────────────────────────────────────── */
+    .card-body {
+      font-size: 0.875rem;
+      color: var(--text-dim);
+      line-height: 1.72;
+      flex: 1;
+    }
+
+    /* ── Platform strip ────────────────────────────────────────────── */
+    .platforms {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .plat-label {
+      font-family: "Courier New", Courier, monospace;
+      font-size: 0.68rem;
+      color: var(--text-dim);
+      letter-spacing: 0.04em;
+    }
+    .plat {
+      display: flex;
+      align-items: center;
+      gap: 0.28rem;
+      font-family: "Courier New", Courier, monospace;
+      font-size: 0.68rem;
+      color: var(--text-dim);
+    }
+    .plat svg {
+      width: 13px; height: 13px;
+      fill: currentColor;
+      flex-shrink: 0;
+    }
+    .plat.partial { opacity: 0.42; }
+
+    /* ── Card footer ───────────────────────────────────────────────── */
+    .card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      border-top: 1px solid var(--border);
+      padding-top: 0.9rem;
+      margin-top: auto;
+      flex-wrap: wrap;
+    }
+
+    .tags {
+      display: flex;
+      gap: 0.3rem;
+      flex-wrap: wrap;
+    }
+    .tag {
+      font-family: "Courier New", Courier, monospace;
+      font-size: 0.68rem;
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      background: var(--tag-bg);
+      color: var(--c);
+      border: 1px solid var(--tag-border);
+      white-space: nowrap;
+    }
+
+    .card-links {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      flex-shrink: 0;
+    }
+    .card-link {
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      font-size: 0.78rem;
+      color: var(--text-dim);
+      text-decoration: none;
+      transition: color 0.15s;
+      white-space: nowrap;
+    }
+    .card-link:hover { color: var(--c); }
+    .card-link svg {
+      width: 11px; height: 11px;
+      stroke: currentColor; fill: none;
+      stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+      flex-shrink: 0;
+    }
+
+    /* ── Legend ────────────────────────────────────────────────────── */
+    .legend {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 0.25rem 2rem 4rem;
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-family: "Courier New", Courier, monospace;
+      font-size: 0.68rem;
+      color: var(--text-dim);
+    }
+    .legend-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--text-dim);
+      flex-shrink: 0;
+    }
+    .legend-dot.partial { opacity: 0.42; }
+
+    /* ── Footer ────────────────────────────────────────────────────── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 1.5rem 2rem;
+      text-align: center;
+      font-size: 0.78rem;
+      color: var(--text-dim);
+      transition: border-color 0.2s;
+    }
+    footer a {
+      color: inherit;
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+    footer a:hover { color: var(--text); }
+
+    /* ── Responsive ────────────────────────────────────────────────── */
+    @media (max-width: 680px) {
+      .projects-grid { grid-template-columns: 1fr; }
+      .hero { padding: 3rem 1.25rem 2.5rem; }
+      .grid-wrap { padding: 0 1.25rem 1.5rem; }
+      .section-header { padding: 0 1.25rem 1rem; }
+      .legend { padding: 0.25rem 1.25rem 3rem; }
+      header { padding: 0 1.25rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <span class="wordmark">joshua<em>.penman</em></span>
+    <button class="theme-btn" onclick="toggleTheme()" aria-label="Toggle colour scheme">
+      <svg id="theme-icon" viewBox="0 0 24 24">
+        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+      </svg>
+      <span id="theme-label">Dark</span>
+    </button>
+  </header>
+
+  <main>
+
+    <section class="hero">
+      <p class="eyebrow">joshua penman</p>
+      <h1>I build<br>things.</h1>
+      <p class="hero-sub">Software developer with a taste for projects that are either genuinely useful or delightfully unnecessary — and occasionally both at once.</p>
+    </section>
+
+    <div class="section-header"><span>Projects</span></div>
+
+    <div class="grid-wrap">
+      <div class="projects-grid">
+
+        <!-- ─── Scriptoria ──────────────────────────────────────────── -->
+        <div class="card" style="
+          --c:           #c08a38;
+          --icon-bg:     rgba(192, 138, 56, 0.12);
+          --icon-border: rgba(192, 138, 56, 0.22);
+          --tag-bg:      rgba(192, 138, 56, 0.10);
+          --tag-border:  rgba(192, 138, 56, 0.22);
+        ">
+          <div class="card-stripe"></div>
+          <div class="card-header">
+            <div class="card-icon">
+              <svg viewBox="0 0 24 24">
+                <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
+                <polyline points="14 2 14 8 20 8"/>
+                <line x1="8" y1="13" x2="16" y2="13"/>
+                <line x1="8" y1="17" x2="16" y2="17"/>
+                <line x1="8" y1="9"  x2="10" y2="9"/>
+              </svg>
+            </div>
+            <div>
+              <p class="card-name">Scriptoria</p>
+              <p class="card-tagline">Sermon &amp; Bible study notes that never leave your browser.</p>
+            </div>
+          </div>
+          <p class="card-body">An offline-first PWA for taking sermon and scripture notes. No account, no server — everything lives in local storage. Supports rich text, cloud sync via Google Drive or OneDrive, multiple Bible translations, and works fully offline.</p>
+          <div class="platforms">
+            <span class="plat-label">Runs on</span>
+            <span class="plat" title="Windows">
+              <svg viewBox="0 0 14 14"><rect x=".5" y=".5" width="5.5" height="5.5"/><rect x="8" y=".5" width="5.5" height="5.5"/><rect x=".5" y="8" width="5.5" height="5.5"/><rect x="8" y="8" width="5.5" height="5.5"/></svg>
+              Windows
+            </span>
+          </div>
+          <div class="card-footer">
+            <div class="tags">
+              <span class="tag">JavaScript</span>
+              <span class="tag">PWA</span>
+              <span class="tag">IndexedDB</span>
+            </div>
+            <div class="card-links">
+              <a class="card-link" href="https://joshua.penman.dev/ChurchScribe/" target="_blank" rel="noopener">
+                <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                Live
+              </a>
+              <a class="card-link" href="https://github.com/KiwiGeek/ChurchScribe" target="_blank" rel="noopener">
+                <svg viewBox="0 0 24 24"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+                GitHub
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- ─── MiraCLI ─────────────────────────────────────────────── -->
+        <div class="card" style="
+          --c:           #22c55e;
+          --icon-bg:     rgba(34, 197, 94, 0.12);
+          --icon-border: rgba(34, 197, 94, 0.22);
+          --tag-bg:      rgba(34, 197, 94, 0.10);
+          --tag-border:  rgba(34, 197, 94, 0.22);
+        ">
+          <div class="card-stripe"></div>
+          <div class="card-header">
+            <div class="card-icon">
+              <svg viewBox="0 0 24 24">
+                <polyline points="4 17 10 11 4 5"/>
+                <line x1="12" y1="19" x2="20" y2="19"/>
+              </svg>
+            </div>
+            <div>
+              <p class="card-name">MiraCLI</p>
+              <p class="card-tagline">A terminal REPL for ChatGPT — no API key required.</p>
+            </div>
+          </div>
+          <p class="card-body">Drives ChatGPT through a headless Chromium session you control, giving you a fully interactive terminal REPL against the real interface. Custom instructions, thread resumption, streaming responses — all without touching the OpenAI API or paying per token.</p>
+          <div class="platforms">
+            <span class="plat-label">Runs on</span>
+            <span class="plat" title="Windows">
+              <svg viewBox="0 0 14 14"><rect x=".5" y=".5" width="5.5" height="5.5"/><rect x="8" y=".5" width="5.5" height="5.5"/><rect x=".5" y="8" width="5.5" height="5.5"/><rect x="8" y="8" width="5.5" height="5.5"/></svg>
+              Windows
+            </span>
+            <span class="plat partial" title="macOS — works, but not as polished as Windows">
+              <svg viewBox="0 0 14 17"><path d="M10.3 1.5c.1 1.3-.4 2.6-1.2 3.5-.8.9-2 1.5-3.1 1.4-.1-1.2.4-2.5 1.2-3.3.9-1 2.1-1.6 3.1-1.6zM12.8 9c0-1.6.9-2.9 2.2-3.5-.7-1.3-2.1-2.2-3.6-2.2-1 0-1.9.4-2.5.4-.7 0-1.5-.4-2.3-.4-2 0-4 1.7-4 4.7 0 1.9.7 3.9 1.6 5.2.6.8 1.3 1.3 2 1.3.6 0 1.4-.4 2.2-.4.7 0 1.5.4 2.1.4.7 0 1.3-.5 1.9-1.3.5-.7.9-1.5 1.2-2.3-.9-.4-1.8-1.4-1.8-3.9z"/></svg>
+              macOS
+            </span>
+          </div>
+          <div class="card-footer">
+            <div class="tags">
+              <span class="tag">TypeScript</span>
+              <span class="tag">Node.js</span>
+              <span class="tag">Playwright</span>
+            </div>
+            <div class="card-links">
+              <a class="card-link" href="https://github.com/KiwiGeek/mira-cli" target="_blank" rel="noopener">
+                <svg viewBox="0 0 24 24"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+                GitHub
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- ─── BrainFudger ─────────────────────────────────────────── -->
+        <div class="card" style="
+          --c:           #a78bfa;
+          --icon-bg:     rgba(167, 139, 250, 0.12);
+          --icon-border: rgba(167, 139, 250, 0.22);
+          --tag-bg:      rgba(167, 139, 250, 0.10);
+          --tag-border:  rgba(167, 139, 250, 0.22);
+        ">
+          <div class="card-stripe"></div>
+          <div class="card-header">
+            <div class="card-icon">
+              <svg viewBox="0 0 24 24">
+                <path d="M9 18h6"/>
+                <path d="M10 22h4"/>
+                <path d="M12 2a7 7 0 0 1 7 7c0 2.5-1.3 4.7-3.3 6l-.7 1H9l-.7-1A7.1 7.1 0 0 1 5 9a7 7 0 0 1 7-7z"/>
+                <path d="M9.5 9.5c0-1.4 1.1-2.5 2.5-2.5s2.5 1.1 2.5 2.5"/>
+              </svg>
+            </div>
+            <div>
+              <p class="card-name">BrainFudger</p>
+              <p class="card-tagline">A Brainf*ck compiler that generates real native binaries.</p>
+            </div>
+          </div>
+          <p class="card-body">Takes Brainf*ck source and emits genuine native executables — Linux ELF, Windows PE, macOS Mach-O, and even MS-DOS COM files. A proper compiler for a language no one sensible would compile, built with eight distinct binary backends.</p>
+          <div class="platforms">
+            <span class="plat-label">Runs on</span>
+            <span class="plat" title="Windows">
+              <svg viewBox="0 0 14 14"><rect x=".5" y=".5" width="5.5" height="5.5"/><rect x="8" y=".5" width="5.5" height="5.5"/><rect x=".5" y="8" width="5.5" height="5.5"/><rect x="8" y="8" width="5.5" height="5.5"/></svg>
+              Windows
+            </span>
+            <span class="plat" title="macOS">
+              <svg viewBox="0 0 14 17"><path d="M10.3 1.5c.1 1.3-.4 2.6-1.2 3.5-.8.9-2 1.5-3.1 1.4-.1-1.2.4-2.5 1.2-3.3.9-1 2.1-1.6 3.1-1.6zM12.8 9c0-1.6.9-2.9 2.2-3.5-.7-1.3-2.1-2.2-3.6-2.2-1 0-1.9.4-2.5.4-.7 0-1.5-.4-2.3-.4-2 0-4 1.7-4 4.7 0 1.9.7 3.9 1.6 5.2.6.8 1.3 1.3 2 1.3.6 0 1.4-.4 2.2-.4.7 0 1.5.4 2.1.4.7 0 1.3-.5 1.9-1.3.5-.7.9-1.5 1.2-2.3-.9-.4-1.8-1.4-1.8-3.9z"/></svg>
+              macOS
+            </span>
+          </div>
+          <div class="card-footer">
+            <div class="tags">
+              <span class="tag">C#</span>
+              <span class="tag">ELF</span>
+              <span class="tag">PE</span>
+              <span class="tag">Mach-O</span>
+              <span class="tag">MS-DOS</span>
+            </div>
+            <div class="card-links">
+              <a class="card-link" href="https://github.com/KiwiGeek/BrainFudger" target="_blank" rel="noopener">
+                <svg viewBox="0 0 24 24"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+                GitHub
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- ─── AteChips ────────────────────────────────────────────── -->
+        <div class="card" style="
+          --c:           #22d3ee;
+          --icon-bg:     rgba(34, 211, 238, 0.12);
+          --icon-border: rgba(34, 211, 238, 0.22);
+          --tag-bg:      rgba(34, 211, 238, 0.10);
+          --tag-border:  rgba(34, 211, 238, 0.22);
+        ">
+          <div class="card-stripe"></div>
+          <div class="card-header">
+            <div class="card-icon">
+              <svg viewBox="0 0 24 24">
+                <rect x="5" y="5" width="14" height="14" rx="2"/>
+                <rect x="9" y="9" width="6" height="6"/>
+                <line x1="9"  y1="1"  x2="9"  y2="5"/>
+                <line x1="15" y1="1"  x2="15" y2="5"/>
+                <line x1="9"  y1="19" x2="9"  y2="23"/>
+                <line x1="15" y1="19" x2="15" y2="23"/>
+                <line x1="1"  y1="9"  x2="5"  y2="9"/>
+                <line x1="1"  y1="15" x2="5"  y2="15"/>
+                <line x1="19" y1="9"  x2="23" y2="9"/>
+                <line x1="19" y1="15" x2="23" y2="15"/>
+              </svg>
+            </div>
+            <div>
+              <p class="card-name">AteChips</p>
+              <p class="card-tagline">A CHIP-8 emulator with CRT shaders and a custom audio engine.</p>
+            </div>
+          </div>
+          <p class="card-body">Full CHIP-8 emulation with the trimmings: CRT-style GLSL shaders for authentic phosphor glow, a custom audio engine with pulse width modulation and real-time waveform preview, and an ImGui debug interface for live register inspection.</p>
+          <div class="platforms">
+            <span class="plat-label">Runs on</span>
+            <span class="plat" title="Windows">
+              <svg viewBox="0 0 14 14"><rect x=".5" y=".5" width="5.5" height="5.5"/><rect x="8" y=".5" width="5.5" height="5.5"/><rect x=".5" y="8" width="5.5" height="5.5"/><rect x="8" y="8" width="5.5" height="5.5"/></svg>
+              Windows
+            </span>
+            <span class="plat" title="macOS">
+              <svg viewBox="0 0 14 17"><path d="M10.3 1.5c.1 1.3-.4 2.6-1.2 3.5-.8.9-2 1.5-3.1 1.4-.1-1.2.4-2.5 1.2-3.3.9-1 2.1-1.6 3.1-1.6zM12.8 9c0-1.6.9-2.9 2.2-3.5-.7-1.3-2.1-2.2-3.6-2.2-1 0-1.9.4-2.5.4-.7 0-1.5-.4-2.3-.4-2 0-4 1.7-4 4.7 0 1.9.7 3.9 1.6 5.2.6.8 1.3 1.3 2 1.3.6 0 1.4-.4 2.2-.4.7 0 1.5.4 2.1.4.7 0 1.3-.5 1.9-1.3.5-.7.9-1.5 1.2-2.3-.9-.4-1.8-1.4-1.8-3.9z"/></svg>
+              macOS
+            </span>
+            <span class="plat" title="Linux">
+              <svg viewBox="0 0 14 17"><ellipse cx="7" cy="11" rx="5" ry="5.5"/><circle cx="7" cy="4" r="3.5"/><circle cx="5.6" cy="3.3" r="0.6" fill="var(--bg)"/><circle cx="8.4" cy="3.3" r="0.6" fill="var(--bg)"/><ellipse cx="7" cy="11.2" rx="2.5" ry="3.5" fill="var(--bg)" opacity="0.32"/><rect x="4.5" y="16" width="2" height="0.9" rx="0.45"/><rect x="7.5" y="16" width="2" height="0.9" rx="0.45"/></svg>
+              Linux
+            </span>
+          </div>
+          <div class="card-footer">
+            <div class="tags">
+              <span class="tag">C#</span>
+              <span class="tag">GLSL</span>
+              <span class="tag">OpenTK</span>
+              <span class="tag">ImGui</span>
+            </div>
+            <div class="card-links">
+              <a class="card-link" href="https://github.com/KiwiGeek/AteChips" target="_blank" rel="noopener">
+                <svg viewBox="0 0 24 24"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+                GitHub
+              </a>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /projects-grid -->
+    </div><!-- /grid-wrap -->
+
+    <div class="legend">
+      <span class="legend-item"><span class="legend-dot"></span>Fully supported</span>
+      <span class="legend-item"><span class="legend-dot partial"></span>Works, not fully polished</span>
+    </div>
+
+  </main>
+
+  <footer>
+    <p>Joshua Penman &nbsp;&middot;&nbsp; <a href="https://github.com/KiwiGeek" target="_blank" rel="noopener">@KiwiGeek</a></p>
+  </footer>
+
+  <script>
+    const ICON_MOON = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
+    const ICON_SUN  = '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>';
+
+    const root  = document.documentElement;
+    const icon  = document.getElementById('theme-icon');
+    const label = document.getElementById('theme-label');
+
+    // Honour saved preference, then OS preference
+    let dark = localStorage.getItem('theme') === 'dark'
+      || (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches);
+
+    function applyTheme() {
+      root.setAttribute('data-theme', dark ? 'dark' : 'light');
+      icon.innerHTML  = dark ? ICON_SUN : ICON_MOON;
+      label.textContent = dark ? 'Light' : 'Dark';
+      localStorage.setItem('theme', dark ? 'dark' : 'light');
+    }
+
+    function toggleTheme() {
+      dark = !dark;
+      applyTheme();
+    }
+
+    // Keep in sync if OS theme changes while page is open
+    window.matchMedia('(prefers-color-scheme: dark)')
+      .addEventListener('change', e => {
+        if (!localStorage.getItem('theme')) { dark = e.matches; applyTheme(); }
+      });
+
+    applyTheme();
+  </script>
+
+</body>
+</html>
