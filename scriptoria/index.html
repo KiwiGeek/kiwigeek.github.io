@@ -203,9 +203,9 @@
       font-size: 0.68rem;
       padding: 0.2rem 0.5rem;
       border-radius: 4px;
-      background: color-mix(in srgb, var(--c) 10%, transparent);
+      background: rgba(192, 138, 56, 0.10);
       color: var(--c);
-      border: 1px solid color-mix(in srgb, var(--c) 22%, transparent);
+      border: 1px solid rgba(192, 138, 56, 0.22);
       white-space: nowrap;
     }
 
@@ -268,7 +268,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      background: color-mix(in srgb, var(--c) 7%, var(--bg-card));
+      background: rgba(192, 138, 56, 0.07);
       border-bottom: 1px solid var(--border-card);
     }
     .screenshot-ph svg {
@@ -279,6 +279,26 @@
       stroke-linecap: round;
       stroke-linejoin: round;
       opacity: 0.45;
+    }
+
+    figure img {
+      width: 100%;
+      display: block;
+      border-bottom: 1px solid var(--border-card);
+    }
+
+    .screenshots-grid.editorial {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    .ss-row {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+    }
+    @media (max-width: 680px) {
+      .ss-row { grid-template-columns: 1fr; }
     }
 
     figcaption {
@@ -307,8 +327,8 @@
       width: 34px;
       height: 34px;
       border-radius: 8px;
-      background: color-mix(in srgb, var(--c) 12%, transparent);
-      border: 1px solid color-mix(in srgb, var(--c) 22%, transparent);
+      background: rgba(192, 138, 56, 0.12);
+      border: 1px solid rgba(192, 138, 56, 0.22);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -446,6 +466,10 @@
             <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="7" r="6"/><path d="M7 1c-2 2-3 3.8-3 6s1 4 3 6M7 1c2 2 3 3.8 3 6s-1 4-3 6M1 7h12"/><path d="M2 4h10M2 10h10"/></svg>
             Any browser
           </span>
+          <span class="plat" title="Mobile — Bible reading and entry viewing supported">
+            <svg viewBox="0 0 10 16" fill="currentColor"><rect x="1" y="0.5" width="8" height="15" rx="1.5"/><circle cx="5" cy="13" r="0.9" fill="var(--bg)"/></svg>
+            Mobile
+          </span>
         </div>
         <div class="tags">
           <span class="tag">JavaScript</span>
@@ -470,31 +494,32 @@
 
       <section class="proj-section">
         <div class="section-label"><span>Screenshots</span></div>
-        <div class="screenshots-grid">
+        <div class="screenshots-grid editorial">
+
+          <!-- Screenshot 1: main editor — full width -->
           <figure>
-            <div class="screenshot-ph">
-              <svg viewBox="0 0 24 24"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/></svg>
-            </div>
-            <figcaption>Note editor with scripture reference panel</figcaption>
+            <img src="img/editor.png" alt="Scriptoria note editor showing a sermon entry alongside the NKJV Bible panel" loading="lazy" />
+            <figcaption>The main editor — sermon notes on the left, scripture panel on the right</figcaption>
           </figure>
+
+          <!-- Screenshots 2 + 3: side by side -->
+          <div class="ss-row">
+            <figure>
+              <img src="img/translations.png" alt="Entry view with The Message translation loaded in the Bible panel" loading="lazy" />
+              <figcaption>Swap translations on the fly — including The Message, NKJV, and more</figcaption>
+            </figure>
+            <figure>
+              <img src="img/search.png" alt="Scripture search panel showing results for a keyword search" loading="lazy" />
+              <figcaption>Full-text scripture search across all bundled translations</figcaption>
+            </figure>
+          </div>
+
+          <!-- Screenshot 4: themes — full width -->
           <figure>
-            <div class="screenshot-ph">
-              <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            </div>
-            <figcaption>Full-text scripture search across all translations</figcaption>
+            <img src="img/themes.png" alt="Library settings showing a grid of over 20 named colour themes" loading="lazy" />
+            <figcaption>Over 50 themes — light, dark, and everything in between</figcaption>
           </figure>
-          <figure>
-            <div class="screenshot-ph">
-              <svg viewBox="0 0 24 24"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
-            </div>
-            <figcaption>Cloud sync &mdash; connect Google Drive or OneDrive</figcaption>
-          </figure>
-          <figure>
-            <div class="screenshot-ph">
-              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
-            </div>
-            <figcaption>Theme picker &mdash; over 50 themes</figcaption>
-          </figure>
+
         </div>
       </section>
 

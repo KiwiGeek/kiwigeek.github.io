@@ -14,8 +14,8 @@ This is Joshua's personal spot on the internet — not a portfolio, not a CV. It
 
 - **Repo**: https://github.com/KiwiGeek/kiwigeek.github.io  
 - **Host**: GitHub Pages at https://joshua.penman.dev  
-- **Mockup file**: `mockup.html` in the workspace root  
-- **Status**: Mockup only — not yet deployed
+- **Default branch**: `master` (not `main`)
+- **Status**: Live — `index.html` deployed
 
 ---
 
@@ -152,8 +152,24 @@ A single `project-page.html` template should be created and then specialised per
 
 ## Implementation path (when ready)
 
-1. Copy `mockup.html` content into `index.html` at repo root.  
-2. Decide on favicon and commit a `favicon.svg` or `favicon.ico`.  
-3. Optionally extract CSS to `styles.css` — the single-file approach works fine for a site this size.  
-4. No build step needed; this is plain HTML/CSS/JS with zero dependencies.  
-5. Push to `main` → GitHub Pages auto-deploys.
+1. ~~Copy `mockup.html` content into `index.html` at repo root.~~ Done.
+2. Decide on favicon and commit a `favicon.svg` or `favicon.ico`.
+3. Optionally extract CSS to `styles.css` — the single-file approach works fine for a site this size.
+4. No build step needed; this is plain HTML/CSS/JS with zero dependencies.
+5. Push to `master` → GitHub Pages auto-deploys. (Note: branch is `master`, not `main`.)
+
+---
+
+## Scriptoria screenshots (Phase 2)
+
+Five screenshots provided by Joshua on 2026-05-17. Stored in conversation history.
+
+| # | Content | Status | Use for |
+|---|---|---|---|
+| 1 | Entry view: "Turning Points, Choices, and Consequences" — split pane with notes + NKJV Bible panel | ✅ Clean | Hero / main UI shot |
+| 2 | Entry view: "Spiritual Hypothermia" — The Message translation in Bible panel | ✅ Clean | Secondary UI / translations feature |
+| 3 | Same entry with scripture search open — "I Press goal" → Philippians 3:14 | ✅ Clean | Search feature callout |
+| 4 | Library Settings → Color Theme — grid of 20+ named themes | ✅ Clean | Feature highlight (theming) |
+| 5 | Library Settings → Synchronization — OneDrive connected | ⚠️ Email visible ("Connected as joshua@penman.dev") | Sync feature — **needs email blurred before use** |
+
+All screenshots use the "Midnight Cathedral" dark theme.

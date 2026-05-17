@@ -473,12 +473,16 @@
               <p class="card-tagline">Sermon &amp; Bible study notes that never leave your browser.</p>
             </div>
           </div>
-          <p class="card-body">An offline-first PWA for taking sermon and scripture notes. No account, no server — everything lives in local storage. Supports rich text, cloud sync via Google Drive or OneDrive, multiple Bible translations, and works fully offline.</p>
+          <p class="card-body">An offline-first PWA for taking sermon and scripture notes. No account, no server — everything lives in local storage. Supports rich text, cloud sync via Google Drive or OneDrive, multiple Bible translations, and works fully offline. Bible reading and entry viewing are fully supported on mobile.</p>
           <div class="platforms">
             <span class="plat-label">Runs on</span>
             <span class="plat" title="Runs in any modern browser">
               <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="7" r="6"/><path d="M7 1c-2 2-3 3.8-3 6s1 4 3 6M7 1c2 2 3 3.8 3 6s-1 4-3 6M1 7h12"/><path d="M2 4h10M2 10h10"/></svg>
               Any browser
+            </span>
+            <span class="plat" title="Mobile — Bible reading and entry viewing supported">
+              <svg viewBox="0 0 10 16" fill="currentColor"><rect x="1" y="0.5" width="8" height="15" rx="1.5"/><circle cx="5" cy="13" r="0.9" fill="var(--bg)"/></svg>
+              Mobile
             </span>
           </div>
           <div class="card-footer">
@@ -654,6 +658,53 @@
             </div>
             <div class="card-links">
               <a class="card-link" href="https://github.com/KiwiGeek/AteChips" target="_blank" rel="noopener">
+                <svg viewBox="0 0 24 24"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+                GitHub
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- ─── ticktick-sync ────────────────────────────────────────── -->
+        <div class="card" style="
+          --c:           #f97316;
+          --icon-bg:     rgba(249, 115, 22, 0.12);
+          --icon-border: rgba(249, 115, 22, 0.22);
+          --tag-bg:      rgba(249, 115, 22, 0.10);
+          --tag-border:  rgba(249, 115, 22, 0.22);
+        ">
+          <div class="card-stripe"></div>
+          <div class="card-header">
+            <div class="card-icon">
+              <svg viewBox="0 0 24 24">
+                <polyline points="20 6 9 17 4 12"/>
+                <path d="M22 11V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h9"/>
+                <path d="M18 21a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
+                <path d="M22 21l-1.5-1.5"/>
+              </svg>
+            </div>
+            <div>
+              <p class="card-name">ticktick-sync</p>
+              <p class="card-tagline">GitHub issues as TickTick tasks — automatically.</p>
+            </div>
+          </div>
+          <p class="card-body">A Cloudflare Worker that syncs GitHub issue events into TickTick tasks. Open an issue, get a task. Close it, get a tick. GitHub stays the source of truth; TickTick keeps it on your radar.</p>
+          <div class="platforms">
+            <span class="plat-label">Deployed on</span>
+            <span class="plat" title="Runs on Cloudflare Workers (serverless edge)">
+              <svg viewBox="0 0 18 12" fill="currentColor"><path d="M14.5 4.5A3.5 3.5 0 0 0 11 1a3.48 3.48 0 0 0-2.93 1.59A2.5 2.5 0 0 0 4.5 5a2.5 2.5 0 0 0 0 5H14a2 2 0 0 0 .5-3.94V4.5z"/></svg>
+              Cloudflare
+            </span>
+          </div>
+          <div class="card-footer">
+            <div class="tags">
+              <span class="tag">TypeScript</span>
+              <span class="tag">Hono</span>
+              <span class="tag">Cloudflare D1</span>
+              <span class="tag">Webhooks</span>
+            </div>
+            <div class="card-links">
+              <a class="card-link" href="https://github.com/KiwiGeek/ticktick-sync" target="_blank" rel="noopener">
                 <svg viewBox="0 0 24 24"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
                 GitHub
               </a>
