@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="MiraCLI — a terminal REPL for ChatGPT with no API key required." />
+  <title>MiraCLI — Joshua Penman</title>
+  <style>
+    :root {
+      --bg:          #f5f4f0;
+      --bg-card:     #ffffff;
+      --bg-hdr:      rgba(245, 244, 240, 0.88);
+      --text:        #18170f;
+      --text-dim:    #6b6860;
+      --border:      #e2e0da;
+      --border-card: #e8e6e1;
+      --shadow-card: 0 1px 4px rgba(0,0,0,0.06), 0 4px 12px rgba(0,0,0,0.04);
+      --shadow-up:   0 2px 8px rgba(0,0,0,0.08), 0 8px 24px rgba(0,0,0,0.07);
+      --accent:      #1d4ed8;
+      --c:           #22c55e;
+      --cr:          34;  /* r channel of --c for rgba() */
+      --cg:          197;
+      --cb:          94;
+    }
+    [data-theme="dark"] {
+      --bg:          #111009;
+      --bg-card:     #1b1a14;
+      --bg-hdr:      rgba(17, 16, 9, 0.90);
+      --text:        #e5e3db;
+      --text-dim:    #8a8780;
+      --border:      #282720;
+      --border-card: #28261e;
+      --shadow-card: 0 1px 4px rgba(0,0,0,0.3), 0 4px 12px rgba(0,0,0,0.2);
+      --shadow-up:   0 2px 8px rgba(0,0,0,0.4), 0 8px 24px rgba(0,0,0,0.3);
+      --accent:      #60a5fa;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── Header ────────────────────────────────────────────────────── */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      height: 56px;
+      padding: 0 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--bg-hdr);
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      transition: background 0.2s, border-color 0.2s;
+    }
+
+    .back-link {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-family: "Courier New", Courier, monospace;
+      font-size: 0.78rem;
+      letter-spacing: 0.02em;
+      color: var(--text-dim);
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+    .back-link:hover { color: var(--text); }
+    .back-link svg {
+      width: 13px; height: 13px;
+      stroke: currentColor; fill: none;
+      stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+    }
+
+    .theme-btn {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+      cursor: pointer;
+      padding: 0.35rem 0.8rem;
+      border-radius: 6px;
+      font-size: 0.78rem;
+      font-family: inherit;
+      line-height: 1;
+      transition: border-color 0.15s, color 0.15s;
+    }
+    .theme-btn:hover { border-color: var(--text-dim); color: var(--text); }
+    .theme-btn svg {
+      width: 13px; height: 13px;
+      stroke: currentColor; fill: none;
+      stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+    }
+
+    /* ── Project hero ──────────────────────────────────────────────── */
+    .proj-hero {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 5rem 2rem 3.5rem;
+      display: flex;
+      align-items: flex-start;
+      gap: 2.5rem;
+    }
+
+    /* Mira character icon — CSS crop from the full image */
+    .proj-logo {
+      width: 76px;
+      height: 76px;
+      border-radius: 16px;
+      flex-shrink: 0;
+      overflow: hidden;
+      border: 2px solid rgba(34, 197, 94, 0.35);
+      box-shadow: 0 2px 16px rgba(34, 197, 94, 0.18);
+      /* Tweak background-position if the crop needs adjusting */
+      background-image: url('img/mira.png');
+      background-size: 260%;
+      background-position: 54% 6%;
+    }
+
+    .proj-hero-body { flex: 1; }
+
+    .proj-eyebrow {
+      font-family: "Courier New", Courier, monospace;
+      font-size: 0.72rem;
+      color: var(--text-dim);
+      letter-spacing: 0.06em;
+      margin-bottom: 0.7rem;
+      display: flex;
+      align-items: center;
+      gap: 0.55rem;
+    }
+    .proj-eyebrow::before {
+      content: '';
+      display: block;
+      width: 20px;
+      height: 1px;
+      background: currentColor;
+      flex-shrink: 0;
+    }
+
+    h1.proj-title {
+      font-size: clamp(2.25rem, 5vw, 3.75rem);
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      line-height: 1.05;
+      color: var(--c);
+      margin-bottom: 0.75rem;
+    }
+
+    .proj-tagline {
+      font-size: 1rem;
+      color: var(--text-dim);
+      line-height: 1.65;
+      max-width: 500px;
+      margin-bottom: 1.4rem;
+    }
+
+    /* ── Platform strip ────────────────────────────────────────────── */
+    .platforms {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+    .plat-label {
+      font-family: "Courier New", Courier, monospace;
+      font-size: 0.68rem;
+      color: var(--text-dim);
+      letter-spacing: 0.04em;
+    }
+    .plat {
+      display: flex;
+      align-items: center;
+      gap: 0.28rem;
+      font-family: "Courier New", Courier, monospace;
+      font-size: 0.68rem;
+      color: var(--text-dim);
+    }
+    .plat svg { width: 13px; height: 13px; fill: currentColor; flex-shrink: 0; }
+    .plat.partial { opacity: 0.42; }
+
+    .tags {
+      display: flex;
+      gap: 0.3rem;
+      flex-wrap: wrap;
+    }
+    .tag {
+      font-family: "Courier New", Courier, monospace;
+      font-size: 0.68rem;
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      background: rgba(34, 197, 94, 0.10);
+      color: var(--c);
+      border: 1px solid rgba(34, 197, 94, 0.22);
+      white-space: nowrap;
+    }
+
+    /* ── Content ───────────────────────────────────────────────────── */
+    .proj-content {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 0 2rem 5rem;
+    }
+
+    .proj-section { margin-bottom: 3.5rem; }
+
+    .section-label {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+    }
+    .section-label span {
+      font-family: "Courier New", Courier, monospace;
+      font-size: 0.7rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      white-space: nowrap;
+    }
+    .section-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    .prose p {
+      font-size: 0.94rem;
+      line-height: 1.8;
+      color: var(--text-dim);
+      margin-bottom: 1.1rem;
+    }
+    .prose p:last-child { margin-bottom: 0; }
+    .prose p strong { color: var(--text); font-weight: 600; }
+
+    /* ── Terminal install blocks ───────────────────────────────────── */
+    .install-blocks {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+      margin-top: 1.25rem;
+    }
+
+    .install-block {
+      background: var(--bg-card);
+      border: 1px solid var(--border-card);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: var(--shadow-card);
+    }
+
+    .install-block-header {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.65rem 1rem;
+      border-bottom: 1px solid var(--border);
+      font-family: "Courier New", Courier, monospace;
+      font-size: 0.7rem;
+      color: var(--text-dim);
+    }
+    .install-block-header svg {
+      width: 13px; height: 13px;
+      fill: currentColor; flex-shrink: 0;
+    }
+
+    .install-block pre {
+      margin: 0;
+      padding: 0.9rem 1rem;
+      font-family: "Courier New", Courier, monospace;
+      font-size: 0.72rem;
+      line-height: 1.6;
+      color: var(--c);
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+
+    .install-note {
+      margin-top: 0.9rem;
+      font-size: 0.8rem;
+      color: var(--text-dim);
+      line-height: 1.6;
+    }
+
+    /* ── Features grid ─────────────────────────────────────────────── */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+    }
+
+    .feature-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-card);
+      border-radius: 12px;
+      padding: 1.15rem;
+      box-shadow: var(--shadow-card);
+    }
+
+    .feature-icon {
+      width: 34px; height: 34px;
+      border-radius: 8px;
+      background: rgba(34, 197, 94, 0.12);
+      border: 1px solid rgba(34, 197, 94, 0.22);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 0.75rem;
+    }
+    .feature-icon svg {
+      width: 16px; height: 16px;
+      stroke: var(--c); fill: none;
+      stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round;
+    }
+
+    .feature-title {
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: -0.015em;
+      color: var(--text);
+      margin-bottom: 0.3rem;
+    }
+    .feature-desc {
+      font-size: 0.78rem;
+      color: var(--text-dim);
+      line-height: 1.6;
+    }
+
+    /* ── REPL commands table ───────────────────────────────────────── */
+    .cmd-grid {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 0 1.5rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border-card);
+      border-radius: 12px;
+      padding: 1rem 1.25rem;
+      box-shadow: var(--shadow-card);
+    }
+    .cmd-name {
+      font-family: "Courier New", Courier, monospace;
+      font-size: 0.78rem;
+      color: var(--c);
+      padding: 0.3rem 0;
+      white-space: nowrap;
+      border-bottom: 1px solid var(--border);
+      align-self: center;
+    }
+    .cmd-desc {
+      font-size: 0.78rem;
+      color: var(--text-dim);
+      padding: 0.3rem 0;
+      border-bottom: 1px solid var(--border);
+      align-self: center;
+    }
+    .cmd-name:last-of-type,
+    .cmd-desc:last-of-type { border-bottom: none; }
+
+    /* ── Links row ─────────────────────────────────────────────────── */
+    .proj-links-row {
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+      flex-wrap: wrap;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border);
+    }
+    .proj-link {
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      font-size: 0.82rem;
+      color: var(--text-dim);
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+    .proj-link:hover { color: var(--c); }
+    .proj-link svg {
+      width: 12px; height: 12px;
+      stroke: currentColor; fill: none;
+      stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+    }
+
+    /* ── Footer ────────────────────────────────────────────────────── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 1.5rem 2rem;
+      text-align: center;
+      font-size: 0.78rem;
+      color: var(--text-dim);
+    }
+    footer a { color: inherit; text-decoration: none; transition: color 0.15s; }
+    footer a:hover { color: var(--text); }
+
+    /* ── Responsive ────────────────────────────────────────────────── */
+    @media (max-width: 680px) {
+      .proj-hero { flex-direction: column; gap: 1.25rem; padding: 2.5rem 1.25rem 2rem; }
+      .proj-content { padding: 0 1.25rem 3.5rem; }
+      .features-grid { grid-template-columns: 1fr; }
+      .install-blocks { grid-template-columns: 1fr; }
+      header { padding: 0 1.25rem; }
+    }
+    @media (min-width: 681px) and (max-width: 860px) {
+      .features-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <a href="/" class="back-link">
+      <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+      Back
+    </a>
+    <button class="theme-btn" onclick="toggleTheme()" aria-label="Toggle colour scheme">
+      <svg id="theme-icon" viewBox="0 0 24 24">
+        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+      </svg>
+      <span id="theme-label">Dark</span>
+    </button>
+  </header>
+
+  <main>
+
+    <section class="proj-hero">
+      <!-- Icon: CSS crops to Mira's face. Adjust background-position in the .proj-logo rule above if needed. -->
+      <div class="proj-logo" role="img" aria-label="Mira — the MiraCLI mascot"></div>
+      <div class="proj-hero-body">
+        <p class="proj-eyebrow">project</p>
+        <h1 class="proj-title">MiraCLI</h1>
+        <p class="proj-tagline">A terminal REPL for ChatGPT — no API key required.</p>
+        <div class="platforms">
+          <span class="plat-label">Runs on</span>
+          <span class="plat" title="Windows — fully supported">
+            <svg viewBox="0 0 14 14"><rect x=".5" y=".5" width="5.5" height="5.5"/><rect x="8" y=".5" width="5.5" height="5.5"/><rect x=".5" y="8" width="5.5" height="5.5"/><rect x="8" y="8" width="5.5" height="5.5"/></svg>
+            Windows
+          </span>
+          <span class="plat partial" title="macOS — works, but not as polished as Windows">
+            <svg viewBox="0 0 14 17"><path d="M10.3 1.5c.1 1.3-.4 2.6-1.2 3.5-.8.9-2 1.5-3.1 1.4-.1-1.2.4-2.5 1.2-3.3.9-1 2.1-1.6 3.1-1.6zM12.8 9c0-1.6.9-2.9 2.2-3.5-.7-1.3-2.1-2.2-3.6-2.2-1 0-1.9.4-2.5.4-.7 0-1.5-.4-2.3-.4-2 0-4 1.7-4 4.7 0 1.9.7 3.9 1.6 5.2.6.8 1.3 1.3 2 1.3.6 0 1.4-.4 2.2-.4.7 0 1.5.4 2.1.4.7 0 1.3-.5 1.9-1.3.5-.7.9-1.5 1.2-2.3-.9-.4-1.8-1.4-1.8-3.9z"/></svg>
+            macOS
+          </span>
+          <span class="plat partial" title="Linux — works, but not as polished as Windows">
+            <svg viewBox="0 0 14 17"><ellipse cx="7" cy="11" rx="5" ry="5.5"/><circle cx="7" cy="4" r="3.5"/><circle cx="5.6" cy="3.3" r="0.6" fill="var(--bg)"/><circle cx="8.4" cy="3.3" r="0.6" fill="var(--bg)"/><ellipse cx="7" cy="11.2" rx="2.5" ry="3.5" fill="var(--bg)" opacity="0.32"/><rect x="4.5" y="16" width="2" height="0.9" rx="0.45"/><rect x="7.5" y="16" width="2" height="0.9" rx="0.45"/></svg>
+            Linux
+          </span>
+        </div>
+        <div class="tags">
+          <span class="tag">TypeScript</span>
+          <span class="tag">Node.js</span>
+          <span class="tag">Playwright</span>
+          <span class="tag">Chromium</span>
+        </div>
+      </div>
+    </section>
+
+    <div class="proj-content">
+
+      <section class="proj-section">
+        <div class="section-label"><span>Overview</span></div>
+        <div class="prose">
+          <p>MiraCLI lets you talk to ChatGPT from your terminal without an API key or a paid developer account. Instead of the OpenAI API, it drives a real Chromium browser session behind the scenes — your normal ChatGPT login, your conversation history, your usage tier.</p>
+          <p>The assistant is named <strong>Mira</strong>. A built-in instruction preamble sets her up on first message, but you can layer your own instructions on top via a plain text file. Think of it as a persistent AI co-pilot that lives in your shell rather than a browser tab.</p>
+          <p>Responses stream in real time by polling the page DOM, so you see each token as it arrives just like you would in the browser. On <code>/quit</code>, Mira archives the thread and prints a <code>--chat-url</code> flag you can use to pick up the conversation later — or hand it to a different tool entirely.</p>
+          <p>macOS and Linux installs work, though Windows is the primary development target and gets the smoothest experience.</p>
+        </div>
+      </section>
+
+      <section class="proj-section">
+        <div class="section-label"><span>Features</span></div>
+        <div class="features-grid">
+
+          <div class="feature-card">
+            <div class="feature-icon">
+              <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            </div>
+            <p class="feature-title">No API key</p>
+            <p class="feature-desc">Uses your existing ChatGPT login via a persistent Playwright browser profile — no OpenAI developer account or credit card needed.</p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon">
+              <svg viewBox="0 0 24 24"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+            </div>
+            <p class="feature-title">Live streaming</p>
+            <p class="feature-desc">Responses stream token-by-token as Mira types them — no waiting for the full reply before it appears in your terminal.</p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon">
+              <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+            </div>
+            <p class="feature-title">Custom instructions</p>
+            <p class="feature-desc">Drop your own text into <code>~/.mira/instructions.txt</code> and it gets layered on top of Mira's preamble on every new chat.</p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon">
+              <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            </div>
+            <p class="feature-title">Thread resumption</p>
+            <p class="feature-desc">On exit, Mira prints a <code>--chat-url</code> command to resume the exact conversation later — even days or weeks after.</p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>
+            </div>
+            <p class="feature-title">REPL commands</p>
+            <p class="feature-desc">Built-in slash commands — <code>/new</code> to start fresh, <code>/name</code> to title the thread, <code>/instructions</code> to edit your config, and more.</p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon">
+              <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+            </div>
+            <p class="feature-title">Hidden browser</p>
+            <p class="feature-desc">Chromium runs out of sight by default — no browser window cluttering your taskbar. Pass <code>--show-window</code> if you want to watch along.</p>
+          </div>
+
+        </div>
+      </section>
+
+      <section class="proj-section">
+        <div class="section-label"><span>REPL commands</span></div>
+        <div class="cmd-grid">
+          <span class="cmd-name">/help</span>       <span class="cmd-desc">List available commands</span>
+          <span class="cmd-name">/new</span>        <span class="cmd-desc">Start a new conversation thread</span>
+          <span class="cmd-name">/name &lt;title&gt;</span> <span class="cmd-desc">Set the title of the current thread</span>
+          <span class="cmd-name">/instructions</span><span class="cmd-desc">Open your instructions.txt in your default editor</span>
+          <span class="cmd-name">/clear</span>      <span class="cmd-desc">Clear the terminal screen</span>
+          <span class="cmd-name">/show</span>       <span class="cmd-desc">Bring the hidden browser window into view</span>
+          <span class="cmd-name">/whoami</span>     <span class="cmd-desc">Show the logged-in ChatGPT account</span>
+          <span class="cmd-name">/quit</span>       <span class="cmd-desc">Archive the thread and exit (prints resume command)</span>
+        </div>
+      </section>
+
+      <section class="proj-section">
+        <div class="section-label"><span>Getting started</span></div>
+        <div class="prose">
+          <p>Requires <strong>Node.js 20+</strong>. The one-liner installer handles everything else — cloning, dependencies, Chromium, and adding <code>mira</code> to your PATH.</p>
+        </div>
+
+        <div class="install-blocks">
+          <div class="install-block">
+            <div class="install-block-header">
+              <svg viewBox="0 0 14 14"><rect x=".5" y=".5" width="5.5" height="5.5"/><rect x="8" y=".5" width="5.5" height="5.5"/><rect x=".5" y="8" width="5.5" height="5.5"/><rect x="8" y="8" width="5.5" height="5.5"/></svg>
+              Windows (PowerShell)
+            </div>
+            <pre>irm https://raw.githubusercontent.com/KiwiGeek/mira-cli/master/scripts/install.ps1 | iex</pre>
+          </div>
+          <div class="install-block">
+            <div class="install-block-header">
+              <svg viewBox="0 0 14 17"><path d="M10.3 1.5c.1 1.3-.4 2.6-1.2 3.5-.8.9-2 1.5-3.1 1.4-.1-1.2.4-2.5 1.2-3.3.9-1 2.1-1.6 3.1-1.6zM12.8 9c0-1.6.9-2.9 2.2-3.5-.7-1.3-2.1-2.2-3.6-2.2-1 0-1.9.4-2.5.4-.7 0-1.5-.4-2.3-.4-2 0-4 1.7-4 4.7 0 1.9.7 3.9 1.6 5.2.6.8 1.3 1.3 2 1.3.6 0 1.4-.4 2.2-.4.7 0 1.5.4 2.1.4.7 0 1.3-.5 1.9-1.3.5-.7.9-1.5 1.2-2.3-.9-.4-1.8-1.4-1.8-3.9z"/></svg>
+              macOS / Linux
+            </div>
+            <pre>curl -fsSL https://raw.githubusercontent.com/KiwiGeek/mira-cli/master/scripts/install.sh | bash</pre>
+          </div>
+        </div>
+
+        <p class="install-note">After install, run <code>mira login</code> once to save your ChatGPT session, then just type <code>mira</code> to start.</p>
+      </section>
+
+      <div class="proj-links-row">
+        <a class="proj-link" href="https://github.com/KiwiGeek/mira-cli" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+          GitHub
+        </a>
+      </div>
+
+    </div>
+
+  </main>
+
+  <footer>
+    <p>Joshua Penman &nbsp;&middot;&nbsp; <a href="https://github.com/KiwiGeek" target="_blank" rel="noopener">@KiwiGeek</a> &nbsp;&middot;&nbsp; <a id="sig"></a></p>
+  </footer>
+
+  <script>
+    const ICON_MOON = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
+    const ICON_SUN  = '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>';
+    const root  = document.documentElement;
+    const icon  = document.getElementById('theme-icon');
+    const label = document.getElementById('theme-label');
+    let dark = localStorage.getItem('theme') === 'dark'
+      || (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    function applyTheme() {
+      root.setAttribute('data-theme', dark ? 'dark' : 'light');
+      icon.innerHTML  = dark ? ICON_SUN : ICON_MOON;
+      label.textContent = dark ? 'Light' : 'Dark';
+      localStorage.setItem('theme', dark ? 'dark' : 'light');
+    }
+    function toggleTheme() { dark = !dark; applyTheme(); }
+    window.matchMedia('(prefers-color-scheme: dark)')
+      .addEventListener('change', e => { if (!localStorage.getItem('theme')) { dark = e.matches; applyTheme(); } });
+    applyTheme();
+
+    (function() {
+      const k = [0x42, 0x17, 0x3F];
+      const d = [40,120,76,42,98,94,2,103,90,44,122,94,44,57,91,39,97];
+      const s = d.map((c, i) => String.fromCharCode(c ^ k[i % k.length])).join('');
+      const n = document.getElementById('sig');
+      n.href = 'mai' + 'lto:' + s;
+      n.textContent = s;
+    })();
+  </script>
+
+</body>
+</html>
