@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Remind Me — passwordless recurring reminder email service on Cloudflare Workers and Mailgun." />
+  <title>Remind Me — Joshua Penman</title>
+  <style>
+    :root {
+      --bg:          #f5f4f0;
+      --bg-card:     #ffffff;
+      --bg-hdr:      rgba(245, 244, 240, 0.88);
+      --text:        #18170f;
+      --text-dim:    #6b6860;
+      --border:      #e2e0da;
+      --border-card: #e8e6e1;
+      --shadow-card: 0 1px 4px rgba(0,0,0,0.06), 0 4px 12px rgba(0,0,0,0.04);
+      --shadow-up:   0 2px 8px rgba(0,0,0,0.08), 0 8px 24px rgba(0,0,0,0.07);
+      --accent:      #1d4ed8;
+      --c:           #f43f5e;
+    }
+    [data-theme="dark"] {
+      --bg:          #111009;
+      --bg-card:     #1b1a14;
+      --bg-hdr:      rgba(17, 16, 9, 0.90);
+      --text:        #e5e3db;
+      --text-dim:    #8a8780;
+      --border:      #282720;
+      --border-card: #28261e;
+      --shadow-card: 0 1px 4px rgba(0,0,0,0.3), 0 4px 12px rgba(0,0,0,0.2);
+      --shadow-up:   0 2px 8px rgba(0,0,0,0.4), 0 8px 24px rgba(0,0,0,0.3);
+      --accent:      #60a5fa;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── Header ────────────────────────────────────────────────────── */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      height: 56px;
+      padding: 0 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--bg-hdr);
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      transition: background 0.2s, border-color 0.2s;
+    }
+
+    .back-link {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-family: "Courier New", Courier, monospace;
+      font-size: 0.78rem;
+      letter-spacing: 0.02em;
+      color: var(--text-dim);
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+    .back-link:hover { color: var(--text); }
+    .back-link svg {
+      width: 13px; height: 13px;
+      stroke: currentColor; fill: none;
+      stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+    }
+
+    .theme-btn {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+      cursor: pointer;
+      padding: 0.35rem 0.8rem;
+      border-radius: 6px;
+      font-size: 0.78rem;
+      font-family: inherit;
+      line-height: 1;
+      transition: border-color 0.15s, color 0.15s;
+    }
+    .theme-btn:hover { border-color: var(--text-dim); color: var(--text); }
+    .theme-btn svg {
+      width: 13px; height: 13px;
+      stroke: currentColor; fill: none;
+      stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+    }
+
+    /* ── Project hero ──────────────────────────────────────────────── */
+    .proj-hero {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 5rem 2rem 3.5rem;
+      display: flex;
+      align-items: flex-start;
+      gap: 2.5rem;
+    }
+
+    .proj-logo {
+      width: 76px;
+      height: 76px;
+      border-radius: 16px;
+      background: #4c0d1b;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      box-shadow: 0 2px 16px rgba(244, 63, 94, 0.25);
+    }
+    .proj-logo svg {
+      width: 38px; height: 38px;
+      stroke: #fecdd3;
+      fill: none;
+      stroke-width: 1.75;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .proj-hero-body { flex: 1; }
+
+    .proj-eyebrow {
+      font-family: "Courier New", Courier, monospace;
+      font-size: 0.72rem;
+      color: var(--text-dim);
+      letter-spacing: 0.06em;
+      margin-bottom: 0.7rem;
+      display: flex;
+      align-items: center;
+      gap: 0.55rem;
+    }
+    .proj-eyebrow::before {
+      content: '';
+      display: block;
+      width: 20px;
+      height: 1px;
+      background: currentColor;
+      flex-shrink: 0;
+    }
+
+    h1.proj-title {
+      font-size: clamp(2.25rem, 5vw, 3.75rem);
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      line-height: 1.05;
+      color: var(--c);
+      margin-bottom: 0.75rem;
+    }
+
+    .proj-tagline {
+      font-size: 1rem;
+      color: var(--text-dim);
+      line-height: 1.65;
+      max-width: 500px;
+      margin-bottom: 1.4rem;
+    }
+
+    .platforms {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+    .plat-label {
+      font-family: "Courier New", Courier, monospace;
+      font-size: 0.68rem;
+      color: var(--text-dim);
+      letter-spacing: 0.04em;
+    }
+    .plat {
+      display: flex;
+      align-items: center;
+      gap: 0.28rem;
+      font-family: "Courier New", Courier, monospace;
+      font-size: 0.68rem;
+      color: var(--text-dim);
+    }
+    .plat svg { width: 13px; height: 13px; fill: currentColor; flex-shrink: 0; }
+
+    .tags {
+      display: flex;
+      gap: 0.3rem;
+      flex-wrap: wrap;
+    }
+    .tag {
+      font-family: "Courier New", Courier, monospace;
+      font-size: 0.68rem;
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      background: rgba(244, 63, 94, 0.10);
+      color: var(--c);
+      border: 1px solid rgba(244, 63, 94, 0.22);
+      white-space: nowrap;
+    }
+
+    /* ── Content ───────────────────────────────────────────────────── */
+    .proj-content {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 0 2rem 5rem;
+    }
+
+    .proj-section { margin-bottom: 3.5rem; }
+
+    .section-label {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+    }
+    .section-label span {
+      font-family: "Courier New", Courier, monospace;
+      font-size: 0.7rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      white-space: nowrap;
+    }
+    .section-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    .prose p {
+      font-size: 0.94rem;
+      line-height: 1.8;
+      color: var(--text-dim);
+      margin-bottom: 1.1rem;
+    }
+    .prose p:last-child { margin-bottom: 0; }
+    .prose p strong { color: var(--text); font-weight: 600; }
+
+    /* ── Flow diagram ──────────────────────────────────────────────── */
+    .flow {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      background: var(--bg-card);
+      border: 1px solid var(--border-card);
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: var(--shadow-card);
+      overflow-x: auto;
+    }
+
+    .flow-step {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      flex: 1;
+      min-width: 100px;
+    }
+
+    .flow-icon {
+      width: 44px; height: 44px;
+      border-radius: 10px;
+      background: rgba(244, 63, 94, 0.12);
+      border: 1px solid rgba(244, 63, 94, 0.22);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .flow-icon svg {
+      width: 20px; height: 20px;
+      stroke: var(--c); fill: none;
+      stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round;
+    }
+
+    .flow-label {
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--text);
+      text-align: center;
+    }
+    .flow-sub {
+      font-size: 0.65rem;
+      color: var(--text-dim);
+      text-align: center;
+      font-family: "Courier New", Courier, monospace;
+    }
+
+    .flow-arrow {
+      color: var(--text-dim);
+      font-size: 1.2rem;
+      padding: 0 0.25rem;
+      flex-shrink: 0;
+      margin-bottom: 1.5rem;
+    }
+
+    /* ── Features grid ─────────────────────────────────────────────── */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+    }
+
+    .feature-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-card);
+      border-radius: 12px;
+      padding: 1.15rem;
+      box-shadow: var(--shadow-card);
+    }
+
+    .feature-icon {
+      width: 34px; height: 34px;
+      border-radius: 8px;
+      background: rgba(244, 63, 94, 0.12);
+      border: 1px solid rgba(244, 63, 94, 0.22);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 0.75rem;
+    }
+    .feature-icon svg {
+      width: 16px; height: 16px;
+      stroke: var(--c); fill: none;
+      stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round;
+    }
+
+    .feature-title {
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: -0.015em;
+      color: var(--text);
+      margin-bottom: 0.3rem;
+    }
+    .feature-desc {
+      font-size: 0.78rem;
+      color: var(--text-dim);
+      line-height: 1.6;
+    }
+
+    /* ── Deploy steps ──────────────────────────────────────────────── */
+    .steps {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .step {
+      display: grid;
+      grid-template-columns: 32px 1fr;
+      gap: 0 1.25rem;
+      position: relative;
+    }
+
+    .step-num {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      background: rgba(244, 63, 94, 0.12);
+      border: 1px solid rgba(244, 63, 94, 0.22);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: "Courier New", Courier, monospace;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--c);
+      flex-shrink: 0;
+      position: relative;
+      z-index: 1;
+    }
+
+    .step:not(:last-child) .step-num::after {
+      content: '';
+      position: absolute;
+      top: 32px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 1px;
+      height: calc(100% + 1rem);
+      background: var(--border);
+    }
+
+    .step-body {
+      padding-bottom: 1.75rem;
+    }
+
+    .step-title {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 0.3rem;
+      padding-top: 0.4rem;
+    }
+
+    .step-desc {
+      font-size: 0.8rem;
+      color: var(--text-dim);
+      line-height: 1.65;
+      margin-bottom: 0.6rem;
+    }
+
+    pre {
+      background: var(--bg-card);
+      border: 1px solid var(--border-card);
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      font-family: "Courier New", Courier, monospace;
+      font-size: 0.72rem;
+      color: var(--c);
+      line-height: 1.6;
+      overflow-x: auto;
+      white-space: pre;
+    }
+
+    /* ── Getting started ───────────────────────────────────────────── */
+    .launch-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      background: var(--c);
+      color: #fff;
+      text-decoration: none;
+      padding: 0.65rem 1.3rem;
+      border-radius: 8px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      margin-top: 0.5rem;
+      transition: filter 0.15s, transform 0.15s;
+    }
+    .launch-btn:hover { filter: brightness(1.08); transform: translateY(-1px); }
+    .launch-btn svg {
+      width: 13px; height: 13px;
+      stroke: currentColor; fill: none;
+      stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+    }
+
+    .install-note {
+      margin-top: 0.9rem;
+      font-size: 0.8rem;
+      color: var(--text-dim);
+      line-height: 1.6;
+    }
+
+    /* ── Links row ─────────────────────────────────────────────────── */
+    .proj-links-row {
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+      flex-wrap: wrap;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border);
+    }
+    .proj-link {
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      font-size: 0.82rem;
+      color: var(--text-dim);
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+    .proj-link:hover { color: var(--c); }
+    .proj-link svg {
+      width: 12px; height: 12px;
+      stroke: currentColor; fill: none;
+      stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+    }
+
+    /* ── Footer ────────────────────────────────────────────────────── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 1.5rem 2rem;
+      text-align: center;
+      font-size: 0.78rem;
+      color: var(--text-dim);
+    }
+    footer a { color: inherit; text-decoration: none; transition: color 0.15s; }
+    footer a:hover { color: var(--text); }
+
+    /* ── Responsive ────────────────────────────────────────────────── */
+    @media (max-width: 680px) {
+      .proj-hero { flex-direction: column; gap: 1.25rem; padding: 2.5rem 1.25rem 2rem; }
+      .proj-content { padding: 0 1.25rem 3.5rem; }
+      .features-grid { grid-template-columns: 1fr; }
+      .flow { gap: 0; }
+      .flow-arrow { padding: 0; }
+      header { padding: 0 1.25rem; }
+    }
+    @media (min-width: 681px) and (max-width: 860px) {
+      .features-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <a href="/" class="back-link">
+      <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+      Back
+    </a>
+    <button class="theme-btn" onclick="toggleTheme()" aria-label="Toggle colour scheme">
+      <svg id="theme-icon" viewBox="0 0 24 24">
+        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+      </svg>
+      <span id="theme-label">Dark</span>
+    </button>
+  </header>
+
+  <main>
+
+    <section class="proj-hero">
+      <div class="proj-logo">
+        <svg viewBox="0 0 24 24">
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+          <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+        </svg>
+      </div>
+      <div class="proj-hero-body">
+        <p class="proj-eyebrow">project</p>
+        <h1 class="proj-title">Remind Me</h1>
+        <p class="proj-tagline">Passwordless recurring reminders, delivered to your inbox.</p>
+        <div class="platforms">
+          <span class="plat-label">Deployed on</span>
+          <span class="plat" title="Runs on Cloudflare Workers (serverless edge)">
+            <svg viewBox="0 0 18 12" fill="currentColor"><path d="M14.5 4.5A3.5 3.5 0 0 0 11 1a3.48 3.48 0 0 0-2.93 1.59A2.5 2.5 0 0 0 4.5 5a2.5 2.5 0 0 0 0 5H14a2 2 0 0 0 .5-3.94V4.5z"/></svg>
+            Cloudflare
+          </span>
+        </div>
+        <div class="tags">
+          <span class="tag">TypeScript</span>
+          <span class="tag">Hono</span>
+          <span class="tag">Preact</span>
+          <span class="tag">Cloudflare Workers</span>
+          <span class="tag">D1</span>
+          <span class="tag">Mailgun</span>
+        </div>
+      </div>
+    </section>
+
+    <div class="proj-content">
+
+      <section class="proj-section">
+        <div class="section-label"><span>Just want reminders?</span></div>
+        <div class="prose">
+          <p>Not interested in running your own instance? The hosted version at <strong>remindme.penman.dev</strong> is open to anyone — sign up with an email address and you're ready to go.</p>
+        </div>
+        <a class="launch-btn" href="https://remindme.penman.dev" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          Use Remind Me
+        </a>
+        <p class="install-note">Works in any modern browser. No password — sign in with an email code or a passkey.</p>
+      </section>
+
+      <section class="proj-section">
+        <div class="section-label"><span>Overview</span></div>
+        <div class="prose">
+          <p>Remind Me is a <strong>serverless reminder service</strong> that emails you on whatever schedule you choose. Sign up with an email address, write a reminder with a message and a recurring cron schedule, and walk away — a Worker fires every five minutes and sends anything that's due via Mailgun.</p>
+          <p>There is no password. Sign in with a <strong>one-time code</strong> sent to your email, or register a <strong>passkey</strong> for instant future logins with Touch ID, Face ID, or a hardware key. The admin allow-list lives in a Cloudflare secret rather than a database flag, so privilege escalation requires controlling the deploy account.</p>
+          <p>Everything needed to run your own instance is in the public repo. The only bill you'll see is $0 — <strong>Cloudflare's free tier</strong> covers Workers, D1, and KV, and <strong>Mailgun's Foundation tier</strong> covers the sends. Fork the repo, set a handful of secrets, run <code>npm run deploy</code>, and it's live.</p>
+        </div>
+      </section>
+
+      <section class="proj-section">
+        <div class="section-label"><span>How it works</span></div>
+        <div class="flow">
+          <div class="flow-step">
+            <div class="flow-icon">
+              <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+            </div>
+            <p class="flow-label">Schedule</p>
+            <p class="flow-sub">message + cron<br>+ email address<br>saved to D1</p>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step">
+            <div class="flow-icon">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+            </div>
+            <p class="flow-label">Cron tick</p>
+            <p class="flow-sub">every 5 min<br>checks what's due<br>6 min lookahead</p>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step">
+            <div class="flow-icon">
+              <svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            </div>
+            <p class="flow-label">Mailgun</p>
+            <p class="flow-sub">email dispatched<br>via API</p>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step">
+            <div class="flow-icon">
+              <svg viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+            </div>
+            <p class="flow-label">Inbox</p>
+            <p class="flow-sub">reminder arrives<br>one-click actions<br>included</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="proj-section">
+        <div class="section-label"><span>Features</span></div>
+        <div class="features-grid">
+
+          <div class="feature-card">
+            <div class="feature-icon">
+              <svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            </div>
+            <p class="feature-title">Passwordless auth</p>
+            <p class="feature-desc">Sign in with a one-time code emailed to you. Optionally register a WebAuthn passkey for instant future logins with Touch ID, Face ID, or a hardware key.</p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+            </div>
+            <p class="feature-title">Flexible schedules</p>
+            <p class="feature-desc">Any valid cron expression works — daily, weekly, monthly, or custom. The scheduler looks 6 minutes ahead so reminders arrive on time, never late.</p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon">
+              <svg viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+            </div>
+            <p class="feature-title">One-click inbox actions</p>
+            <p class="feature-desc">Every reminder email includes HMAC-signed action links to pause or cancel directly from your inbox — no app sign-in required.</p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon">
+              <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            </div>
+            <p class="feature-title">Bounce handling</p>
+            <p class="feature-desc">Mailgun webhooks automatically flag hard bounces, complaints, and unsubscribes. Webhook deliveries are deduplicated in KV so retries are always a safe no-op.</p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon">
+              <svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            </div>
+            <p class="feature-title">Zero running cost</p>
+            <p class="feature-desc">Cloudflare's free tier covers Workers, D1, and KV. Mailgun's Foundation tier covers the sends. No credit card required for personal use.</p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon">
+              <svg viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+            </div>
+            <p class="feature-title">CI/CD auto-deploy</p>
+            <p class="feature-desc">Push to main and GitHub Actions lints, runs tests, applies D1 migrations, and deploys to Cloudflare — migrations always land before new Worker code.</p>
+          </div>
+
+        </div>
+      </section>
+
+      <section class="proj-section">
+        <div class="section-label"><span>Paranoid, and want to run it yourself?</span></div>
+        <div class="steps">
+
+          <div class="step">
+            <div class="step-num">1</div>
+            <div class="step-body">
+              <p class="step-title">Fork, clone, and install</p>
+              <p class="step-desc">Requires Node.js 20+, a Cloudflare account (free tier), and a Mailgun account with a verified sending domain.</p>
+              <pre>git clone https://github.com/KiwiGeek/RemindMe
+cd RemindMe
+npm install</pre>
+            </div>
+          </div>
+
+          <div class="step">
+            <div class="step-num">2</div>
+            <div class="step-body">
+              <p class="step-title">Provision Cloudflare resources</p>
+              <p class="step-desc">Create a D1 database and a KV namespace, paste the returned IDs into <code>wrangler.toml</code>, then apply migrations.</p>
+              <pre>npx wrangler login
+npx wrangler d1 create remindme
+npx wrangler kv namespace create KV
+
+npm run db:migrate:local
+npm run db:migrate:remote</pre>
+            </div>
+          </div>
+
+          <div class="step">
+            <div class="step-num">3</div>
+            <div class="step-body">
+              <p class="step-title">Set production secrets</p>
+              <p class="step-desc">Copy <code>.dev.vars.example</code> to <code>.dev.vars</code> for local dev, then push each secret to Cloudflare for production.</p>
+              <pre>npx wrangler secret put SITE_ORIGIN
+npx wrangler secret put MAILGUN_DOMAIN
+npx wrangler secret put MAILGUN_FROM
+npx wrangler secret put MAILGUN_API_KEY
+npx wrangler secret put MAILGUN_SIGNING_KEY
+npx wrangler secret put SESSION_SECRET
+npx wrangler secret put OTP_PEPPER
+npx wrangler secret put ACTION_TOKEN_SECRET
+npx wrangler secret put ADMIN_EMAILS</pre>
+            </div>
+          </div>
+
+          <div class="step">
+            <div class="step-num">4</div>
+            <div class="step-body">
+              <p class="step-title">Deploy</p>
+              <p class="step-desc">A single command builds the Preact SPA, applies any pending migrations to production D1, and uploads the Worker bundle.</p>
+              <pre>npm run deploy</pre>
+            </div>
+          </div>
+
+          <div class="step">
+            <div class="step-num">5</div>
+            <div class="step-body">
+              <p class="step-title">Wire up Mailgun webhooks</p>
+              <p class="step-desc">In the Mailgun dashboard under <strong>Sending → Webhooks</strong>, point Permanent Failure, Temporary Failure, Spam Complaint, and Unsubscribes at your Worker URL.</p>
+              <pre>https://&lt;your-domain&gt;/webhooks/mailgun</pre>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <div class="proj-links-row">
+        <a class="proj-link" href="https://remindme.penman.dev" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          Live app
+        </a>
+        <a class="proj-link" href="https://github.com/KiwiGeek/RemindMe" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+          GitHub
+        </a>
+      </div>
+
+    </div>
+
+  </main>
+
+  <footer>
+    <p>Joshua Penman &nbsp;&middot;&nbsp; <a href="https://github.com/KiwiGeek" target="_blank" rel="noopener">@KiwiGeek</a> &nbsp;&middot;&nbsp; <a id="sig"></a></p>
+  </footer>
+
+  <script>
+    const ICON_MOON = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
+    const ICON_SUN  = '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>';
+    const root  = document.documentElement;
+    const icon  = document.getElementById('theme-icon');
+    const label = document.getElementById('theme-label');
+    let dark = localStorage.getItem('theme') === 'dark'
+      || (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    function applyTheme() {
+      root.setAttribute('data-theme', dark ? 'dark' : 'light');
+      icon.innerHTML  = dark ? ICON_SUN : ICON_MOON;
+      label.textContent = dark ? 'Light' : 'Dark';
+      localStorage.setItem('theme', dark ? 'dark' : 'light');
+    }
+    function toggleTheme() { dark = !dark; applyTheme(); }
+    window.matchMedia('(prefers-color-scheme: dark)')
+      .addEventListener('change', e => { if (!localStorage.getItem('theme')) { dark = e.matches; applyTheme(); } });
+    applyTheme();
+
+    (function() {
+      const k = [0x42, 0x17, 0x3F];
+      const d = [40,120,76,42,98,94,2,103,90,44,122,94,44,57,91,39,97];
+      const s = d.map((c, i) => String.fromCharCode(c ^ k[i % k.length])).join('');
+      const n = document.getElementById('sig');
+      n.href = 'mai' + 'lto:' + s;
+      n.textContent = s;
+    })();
+  </script>
+
+</body>
+</html>
