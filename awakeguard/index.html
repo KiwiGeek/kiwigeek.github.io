@@ -592,7 +592,7 @@
         <div class="prose">
           <p>AwakeGuard exists because the alternatives are all wrong. Changing your power plan is too blunt &mdash; you have to remember to change it back. Third-party tools are often bloated, ad-supported, or just a little sketchy. Wiggling the mouse on a timer is undignified. There should be a small, honest utility that does one thing: keeps your screen on until you say otherwise.</p>
           <p>It lives in the system tray and stays out of your way. Right-click, pick a duration, and your PC will not sleep, lock, or blank the screen until the time is up. No power plan modifications, no driver installs, no registry hacks &mdash; just a call to the Windows API&rsquo;s <strong>SetThreadExecutionState</strong>, which is exactly what it&rsquo;s there for.</p>
-          <p>There are three completely separate implementations shipped in the same repo. The <strong>WPF/Fluent</strong> build uses .NET 10, WPF-UI, and Windows&rsquo; Mica material for a modern look that fits right into Windows 11. The <strong>native Win32</strong> build is pure C++17 with zero third-party dependencies &mdash; a single ~200&thinsp;KB executable that runs on anything from Windows 7 onwards and needs no runtime installed. There&rsquo;s also an <strong>XP LOL</strong> build for the truly unhinged, which runs all the way back to Windows ME. All three are functionally identical; pick whichever suits your taste.</p>
+          <p>There are three completely separate implementations shipped in the same repo. The <strong>WPF/Fluent</strong> build uses .NET 10, WPF-UI, and Windows&rsquo; Mica material for a modern look that fits right into Windows 11. The <strong>native Win32</strong> build is pure C++17 with zero third-party dependencies &mdash; a single ~200&thinsp;KB executable that runs on anything from Windows 7 onwards and needs no runtime installed. There&rsquo;s also an <strong>XP LOL</strong> build for the truly unhinged, targeting Windows XP and later. All three are functionally identical; pick whichever suits your taste.</p>
         </div>
       </section>
 
@@ -637,8 +637,8 @@
             <div class="feature-icon">
               <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
             </div>
-            <p class="feature-title">Two implementations</p>
-            <p class="feature-desc">WPF/Fluent with Mica UI for Windows 11 polish, or a native Win32 build in pure C++ with no runtime and a ~200&thinsp;KB footprint.</p>
+            <p class="feature-title">Three implementations</p>
+            <p class="feature-desc">WPF/Fluent with Mica UI for Windows 11 polish, a native Win32 build in pure C++ with no runtime and a ~200&thinsp;KB footprint, or XP LOL for the truly unhinged.</p>
           </div>
 
           <div class="feature-card">
@@ -671,7 +671,7 @@
       <section class="proj-section">
         <div class="section-label"><span>Getting Started</span></div>
         <div class="prose">
-          <p>Open PowerShell and run the one-liner below. The installer detects your Windows architecture automatically and sets AwakeGuard up per-user &mdash; no admin prompt, no reboot. Once done, it appears in your system tray and is ready to go.</p>
+          <p>For sane, or at least mostly sane, versions of Windows: open PowerShell and run the one-liner below. The installer detects your architecture automatically and sets AwakeGuard up per-user &mdash; no admin prompt, no reboot. Once done, it appears in your system tray and is ready to go.</p>
         </div>
         <div class="code-block">
           <code id="install-cmd">irm https://raw.githubusercontent.com/KiwiGeek/AwakeGuard/master/scripts/install.ps1 | iex</code>
@@ -701,8 +701,9 @@
       <section class="proj-section">
         <div class="section-label"><span>Yes, it also runs on Windows XP</span></div>
         <div class="prose">
-          <p>The repo ships a third build: <strong>AwakeGuard XP LOL</strong> — a single 32-bit executable compiled with MinGW i686 that runs all the way back to Windows ME. It has the same tray menu and duration presets as the modern builds. Nobody asked for this. It exists anyway.</p>
-          <p>Confirmed working on ME, XP SP3, Vista, 7, 8, 8.1, 10, and 11. At this point if it has a Start button, just assume yes.</p>
+          <p>The repo ships a third build: <strong>AwakeGuard XP LOL</strong> — a single 32-bit executable compiled with MinGW i686 targeting Windows XP SP3. It has the same tray menu and duration presets as the modern builds. </p>
+          <p>Nobody asked for this. Nobody wants this.  It exists anyway. Won&rsquo;t somebody think of the children? </p>
+          <p>Confirmed working on XP SP3, Vista, 7, 8, 8.1, 10, and 11.</p>
         </div>
         <a class="github-callout" href="https://github.com/KiwiGeek/AwakeGuard/releases" target="_blank" rel="noopener">
           <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
