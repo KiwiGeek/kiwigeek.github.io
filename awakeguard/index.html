@@ -572,7 +572,7 @@
           </span>
         </div>
         <div class="platforms">
-          <span class="plat">XP SP3 &middot; Vista &middot; 7 &middot; 8 &middot; 8.1 &middot; 10 &middot; 11</span>
+          <span class="plat">95 &middot; 98 &middot; ME &middot; XP SP3 &middot; Vista &middot; 7 &middot; 8 &middot; 8.1 &middot; 10 &middot; 11</span>
         </div>
         <div class="tags">
           <span class="tag">C++</span>
@@ -591,7 +591,7 @@
         <div class="prose">
           <p>AwakeGuard exists because the alternatives are all wrong. Changing your power plan is too blunt &mdash; you have to remember to change it back. Third-party tools are often bloated, ad-supported, or just a little sketchy. Wiggling the mouse on a timer is undignified. There should be a small, honest utility that does one thing: keeps your screen on until you say otherwise.</p>
           <p>It lives in the system tray and stays out of your way. Right-click, pick a duration, and your PC will not sleep, lock, or blank the screen until the time is up. No power plan modifications, no driver installs, no registry hacks &mdash; just a call to the Windows API&rsquo;s <strong>SetThreadExecutionState</strong>, which is exactly what it&rsquo;s there for.</p>
-          <p>There are three completely separate implementations shipped in the same repo. The <strong>WPF/Fluent</strong> build uses .NET 10, WPF-UI, and Windows&rsquo; Mica material for a modern look that fits right into Windows 11. The <strong>native Win32</strong> build is pure C++17 with zero third-party dependencies &mdash; a single ~200&thinsp;KB executable that runs on anything from Windows 7 onwards and needs no runtime installed. There&rsquo;s also an <strong>XP LOL</strong> build for the truly unhinged, targeting Windows XP and later. All three are functionally identical; pick whichever suits your taste.</p>
+          <p>There are four completely separate implementations shipped in the same repo. The <strong>WPF/Fluent</strong> build uses .NET 10, WPF-UI, and Windows&rsquo; Mica material for a modern look that fits right into Windows 11. The <strong>native Win32</strong> build is pure C++17 with zero third-party dependencies &mdash; a single ~200&thinsp;KB executable that runs on anything from Windows 7 onwards and needs no runtime installed. Then things get weird: <strong>XP LOL</strong> targets the NT kernel all the way back to XP SP3, and <strong>95 ROFLMAO</strong> targets the 9x kernel &mdash; yes, that means 95, 98, and ME. All four are functionally identical; pick whichever suits your taste (or your vintage hardware).</p>
         </div>
       </section>
 
@@ -636,8 +636,8 @@
             <div class="feature-icon">
               <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
             </div>
-            <p class="feature-title">Three implementations</p>
-            <p class="feature-desc">WPF/Fluent with Mica UI for Windows 11 polish, a native Win32 build in pure C++ with no runtime and a ~200&thinsp;KB footprint, or XP LOL for the truly unhinged.</p>
+            <p class="feature-title">Four implementations</p>
+            <p class="feature-desc">WPF/Fluent for Windows 11 polish, native Win32 for a ~200&thinsp;KB no-runtime footprint, XP LOL for NT kernel nostalgia, and 95 ROFLMAO for 9x kernel chaos.</p>
           </div>
 
           <div class="feature-card">
@@ -661,7 +661,7 @@
               <svg viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
             </div>
             <p class="feature-title">Open source</p>
-            <p class="feature-desc">GPL-3.0 licensed. All three implementations live in the same repo &mdash; readable, auditable, and forkable.</p>
+            <p class="feature-desc">GPL-3.0 licensed. All four implementations live in the same repo &mdash; readable, auditable, and forkable.</p>
           </div>
 
         </div>
@@ -698,17 +698,33 @@
       </section>
 
       <section class="proj-section">
-        <div class="section-label"><span>Yes, it also runs on Windows XP</span></div>
+        <div class="section-label"><span>Fine. It Runs on XP Too.</span></div>
         <div class="prose">
-          <p>The repo ships a third build: <strong>AwakeGuard XP LOL</strong> — a single 32-bit executable compiled with MinGW i686 targeting Windows XP SP3. It has the same tray menu and duration presets as the modern builds. </p>
-          <p>Nobody asked for this. Nobody wants this.  It exists anyway. Won&rsquo;t somebody think of the children? </p>
+          <p><strong>AwakeGuard XP LOL</strong> is a 32-bit build targeting the NT kernel, running from XP SP3 all the way through to Windows 11. Same tray menu, same duration presets. Nobody asked for this. It exists anyway.</p>
           <p>Confirmed working on XP SP3, Vista, 7, 8, 8.1, 10, and 11.</p>
         </div>
         <a class="github-callout" href="https://github.com/KiwiGeek/AwakeGuard/releases" target="_blank" rel="noopener">
           <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
           <div>
             <p class="github-callout-title">Grab AwakeGuard-win32-x86-xp-lol.exe</p>
-            <p class="github-callout-desc">The XP LOL build is included in every GitHub Release alongside the mainstream binaries.</p>
+            <p class="github-callout-desc">Included in every GitHub Release alongside the mainstream binaries.</p>
+          </div>
+          <svg class="github-callout-arrow" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </a>
+      </section>
+
+      <section class="proj-section">
+        <div class="section-label"><span>We Have Gone Too Far</span></div>
+        <div class="prose">
+          <p><strong>AwakeGuard 95 ROFLMAO</strong> targets the 9x kernel &mdash; the one with DOS underneath, cooperative multitasking doing its level best, and HIMEM.SYS loading with quiet dignity. Same tray menu, same duration presets as the modern builds. We regret nothing. We regret everything.</p>
+          <p>Confirmed working on 95, 98, and ME. At this point if it has a Start button, just assume yes.</p>
+	  <p>Don't talk to me about NT 4.0</p>
+        </div>
+        <a class="github-callout" href="https://github.com/KiwiGeek/AwakeGuard/releases" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          <div>
+            <p class="github-callout-title">Grab AwakeGuard-win32-x86-95-roflmao.exe</p>
+            <p class="github-callout-desc">Included in every GitHub Release alongside the mainstream binaries.</p>
           </div>
           <svg class="github-callout-arrow" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
         </a>
