@@ -121,12 +121,11 @@
       align-items: center;
       justify-content: center;
       flex-shrink: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
-      font-size: 2.6rem;
-      font-weight: 800;
-      color: #c7d2fe;
-      letter-spacing: -0.04em;
       box-shadow: 0 2px 16px color-mix(in srgb, var(--c) 30%, transparent);
+    }
+    .proj-logo img {
+      width: 44px;
+      height: 44px;
     }
 
     .proj-hero-body { flex: 1; }
@@ -558,7 +557,9 @@
   <main>
 
     <section class="proj-hero">
-      <div class="proj-logo">AG</div>
+      <div class="proj-logo">
+        <img src="img/AwakeGuard-512.png" width="44" height="44" alt="AwakeGuard icon" />
+      </div>
       <div class="proj-hero-body">
         <p class="proj-eyebrow">project</p>
         <h1 class="proj-title">AwakeGuard</h1>
@@ -569,6 +570,10 @@
             <svg viewBox="0 0 14 14"><rect x=".5" y=".5" width="5.5" height="5.5"/><rect x="8" y=".5" width="5.5" height="5.5"/><rect x=".5" y="8" width="5.5" height="5.5"/><rect x="8" y="8" width="5.5" height="5.5"/></svg>
             Windows
           </span>
+        </div>
+        <div class="platforms">
+          <span class="plat-label">XP LOL on</span>
+          <span class="plat">ME (sanity not included) &middot; XP &middot; Vista &middot; 7 &middot; 8 &middot; 8.1 &middot; 10 &middot; 11</span>
         </div>
         <div class="tags">
           <span class="tag">C++</span>
@@ -587,7 +592,7 @@
         <div class="prose">
           <p>AwakeGuard exists because the alternatives are all wrong. Changing your power plan is too blunt &mdash; you have to remember to change it back. Third-party tools are often bloated, ad-supported, or just a little sketchy. Wiggling the mouse on a timer is undignified. There should be a small, honest utility that does one thing: keeps your screen on until you say otherwise.</p>
           <p>It lives in the system tray and stays out of your way. Right-click, pick a duration, and your PC will not sleep, lock, or blank the screen until the time is up. No power plan modifications, no driver installs, no registry hacks &mdash; just a call to the Windows API&rsquo;s <strong>SetThreadExecutionState</strong>, which is exactly what it&rsquo;s there for.</p>
-          <p>There are two completely separate implementations shipped in the same repo. The <strong>WPF/Fluent</strong> build uses .NET 10, WPF-UI, and Windows&rsquo; Mica material for a modern look that fits right into Windows 11. The <strong>native Win32</strong> build is pure C++17 with zero third-party dependencies &mdash; a single ~200&thinsp;KB executable that runs on anything from Windows 7 onwards and needs no runtime installed. Both are functionally identical; pick whichever suits your taste.</p>
+          <p>There are three completely separate implementations shipped in the same repo. The <strong>WPF/Fluent</strong> build uses .NET 10, WPF-UI, and Windows&rsquo; Mica material for a modern look that fits right into Windows 11. The <strong>native Win32</strong> build is pure C++17 with zero third-party dependencies &mdash; a single ~200&thinsp;KB executable that runs on anything from Windows 7 onwards and needs no runtime installed. There&rsquo;s also an <strong>XP LOL</strong> build for the truly unhinged, which runs all the way back to Windows ME. All three are functionally identical; pick whichever suits your taste.</p>
         </div>
       </section>
 
@@ -657,7 +662,7 @@
               <svg viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
             </div>
             <p class="feature-title">Open source</p>
-            <p class="feature-desc">GPL-3.0 licensed. Both implementations live in the same repo &mdash; readable, auditable, and forkable.</p>
+            <p class="feature-desc">GPL-3.0 licensed. All three implementations live in the same repo &mdash; readable, auditable, and forkable.</p>
           </div>
 
         </div>
@@ -691,6 +696,22 @@
           <svg class="github-callout-arrow" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
         </a>
         <p class="install-note">Windows only &mdash; x64, x86, and ARM64. Requires Windows 10 or later for the WPF/Fluent build; the native Win32 build runs on Windows 7+.</p>
+      </section>
+
+      <section class="proj-section">
+        <div class="section-label"><span>Yes, it also runs on Windows XP</span></div>
+        <div class="prose">
+          <p>The repo ships a third build: <strong>AwakeGuard XP LOL</strong> — a single 32-bit executable compiled with MinGW i686 that runs all the way back to Windows ME. It has the same tray menu and duration presets as the modern builds. Nobody asked for this. It exists anyway.</p>
+          <p>Confirmed working on ME, XP SP3, Vista, 7, 8, 8.1, 10, and 11. At this point if it has a Start button, just assume yes.</p>
+        </div>
+        <a class="github-callout" href="https://github.com/KiwiGeek/AwakeGuard/releases" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          <div>
+            <p class="github-callout-title">Grab AwakeGuard-win32-x86-xp-lol.exe</p>
+            <p class="github-callout-desc">The XP LOL build is included in every GitHub Release alongside the mainstream binaries.</p>
+          </div>
+          <svg class="github-callout-arrow" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </a>
       </section>
 
       <div class="proj-links-row">
