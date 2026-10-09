@@ -1,0 +1,51 @@
+NEON NEKO CAFE - THIRD-PARTY SOFTWARE
+=====================================
+
+The game itself (art, music, code) is (c) KiwiGeek. This site and the
+downloads also contain the following third-party software, each under its
+own license. Full license texts are in the licenses/ folder.
+
+In the browser (MS-DOS edition player)
+--------------------------------------
+js-dos 8.3.20 (dos/jsdos/js-dos.js, js-dos.css, emulators/emulators.js,
+wlibzip.*) - GNU General Public License v2.0
+    Source: https://github.com/caiiiycuk/js-dos  (tag/branch for 8.3.20)
+            https://www.npmjs.com/package/js-dos/v/8.3.20
+
+DOSBox-X, WebAssembly build as shipped with js-dos 8.3.20
+(dos/jsdos/emulators/wdosbox-x.js, wdosbox-x.wasm)
+- GNU General Public License v2.0
+    Source: built by the js-dos project from DOSBox-X;
+            https://github.com/caiiiycuk/js-dos (js-dos 8.3.20 and its emulators)
+            https://github.com/joncampbell123/dosbox-x (upstream DOSBox-X)
+
+FluidSynth 2.4.6, Emscripten build (dos/midi/libfluidsynth-2.4.6.js)
+- GNU Lesser General Public License v2.1
+    Source: https://github.com/FluidSynth/fluidsynth
+            https://github.com/jet2jet/fluidsynth-emscripten
+
+js-synthesizer 1.13.0 (dos/midi/js-synthesizer*.js)
+- BSD 3-Clause License
+    Source: https://github.com/jet2jet/js-synthesizer
+
+TimGM6mb General MIDI soundfont by Tim Brechbill (dos/midi/TimGM6mb.sf2)
+- GNU General Public License v2.0. The .sf2 file is its own source form.
+
+These components are used unmodified. If any link above stops working,
+open an issue on this repository and a copy of the corresponding source
+will be provided, as the GPL requires.
+
+In the MS-DOS downloads and the in-browser MS-DOS game
+------------------------------------------------------
+DOS/32 Advanced DOS Extender - DOS/32A license (licenses/DOS32A.txt)
+    This product uses DOS/32 Advanced DOS Extender technology.
+    Copyright (C) 1996-2006 by Narech K. All rights reserved.
+
+Built with Open Watcom C/C++ 2.0 (Sybase Open Watcom Public License
+applies to its tools; programs built with it are not covered by it).
+
+Fonts
+-----
+The in-game bitmap fonts are derived from the X11 "misc-fixed" 5x7 and
+6x10 fonts, which are in the public domain. The website loads Silkscreen,
+DotGothic16 and IBM Plex Mono from Google Fonts (SIL Open Font License).
