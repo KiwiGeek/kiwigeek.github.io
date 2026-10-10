@@ -1,0 +1,1093 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Neon Neko Café — a cyberpunk cat girl café idle clicker for the browser, Windows 95–11 and MS-DOS." />
+  <title>Neon Neko Café — Joshua Penman</title>
+  <style>
+    :root {
+      --bg:          #f5f4f0;
+      --bg-card:     #ffffff;
+      --bg-hdr:      rgba(245, 244, 240, 0.88);
+      --text:        #18170f;
+      --text-dim:    #6b6860;
+      --border:      #e2e0da;
+      --border-card: #e8e6e1;
+      --shadow-card: 0 1px 4px rgba(0,0,0,0.06), 0 4px 12px rgba(0,0,0,0.04);
+      --shadow-up:   0 2px 8px rgba(0,0,0,0.08), 0 8px 24px rgba(0,0,0,0.07);
+      --accent:      #1d4ed8;
+      --c:           #db2777;
+    }
+    [data-theme="dark"] {
+      --bg:          #111009;
+      --bg-card:     #1b1a14;
+      --bg-hdr:      rgba(17, 16, 9, 0.90);
+      --text:        #e5e3db;
+      --text-dim:    #8a8780;
+      --border:      #282720;
+      --border-card: #28261e;
+      --shadow-card: 0 1px 4px rgba(0,0,0,0.3), 0 4px 12px rgba(0,0,0,0.2);
+      --shadow-up:   0 2px 8px rgba(0,0,0,0.4), 0 8px 24px rgba(0,0,0,0.3);
+      --accent:      #60a5fa;
+      --c:           #f472b6;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── Header ────────────────────────────────────────────────────── */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      height: 56px;
+      padding: 0 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--bg-hdr);
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      transition: background 0.2s, border-color 0.2s;
+    }
+
+    .back-link {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-family: "Courier New", Courier, monospace;
+      font-size: 0.78rem;
+      letter-spacing: 0.02em;
+      color: var(--text-dim);
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+    .back-link:hover { color: var(--text); }
+    .back-link svg {
+      width: 13px; height: 13px;
+      stroke: currentColor; fill: none;
+      stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+      flex-shrink: 0;
+    }
+
+    .theme-btn {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+      cursor: pointer;
+      padding: 0.35rem 0.8rem;
+      border-radius: 6px;
+      font-size: 0.78rem;
+      font-family: inherit;
+      line-height: 1;
+      transition: border-color 0.15s, color 0.15s;
+    }
+    .theme-btn:hover { border-color: var(--text-dim); color: var(--text); }
+    .theme-btn svg {
+      width: 13px; height: 13px;
+      stroke: currentColor; fill: none;
+      stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+      flex-shrink: 0;
+    }
+
+    /* ── Project hero ──────────────────────────────────────────────── */
+    .proj-hero {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 5rem 2rem 3.5rem;
+      display: flex;
+      align-items: flex-start;
+      gap: 2.5rem;
+    }
+
+    .proj-logo {
+      width: 76px;
+      height: 76px;
+      border-radius: 16px;
+      background: #1a0f2e;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      box-shadow: 0 2px 16px color-mix(in srgb, var(--c) 30%, transparent);
+    }
+    .proj-logo img {
+      width: 44px;
+      height: 44px;
+    }
+
+    .proj-hero-body { flex: 1; }
+
+    .proj-eyebrow {
+      font-family: "Courier New", Courier, monospace;
+      font-size: 0.72rem;
+      color: var(--text-dim);
+      letter-spacing: 0.06em;
+      margin-bottom: 0.7rem;
+      display: flex;
+      align-items: center;
+      gap: 0.55rem;
+    }
+    .proj-eyebrow::before {
+      content: '';
+      display: block;
+      width: 20px;
+      height: 1px;
+      background: currentColor;
+      flex-shrink: 0;
+    }
+
+    h1.proj-title {
+      font-size: clamp(2.25rem, 5vw, 3.75rem);
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      line-height: 1.05;
+      color: var(--c);
+      margin-bottom: 0.75rem;
+    }
+
+    .proj-tagline {
+      font-size: 1rem;
+      color: var(--text-dim);
+      line-height: 1.65;
+      max-width: 500px;
+      margin-bottom: 1.4rem;
+    }
+
+    /* ── Platform strip ────────────────────────────────────────────── */
+    .platforms {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+    .plat-label {
+      font-family: "Courier New", Courier, monospace;
+      font-size: 0.68rem;
+      color: var(--text-dim);
+      letter-spacing: 0.04em;
+    }
+    .plat {
+      display: flex;
+      align-items: center;
+      gap: 0.28rem;
+      font-family: "Courier New", Courier, monospace;
+      font-size: 0.68rem;
+      color: var(--text-dim);
+    }
+    .plat svg {
+      width: 13px; height: 13px;
+      fill: currentColor;
+      flex-shrink: 0;
+    }
+
+    .tags {
+      display: flex;
+      gap: 0.3rem;
+      flex-wrap: wrap;
+    }
+    .tag {
+      font-family: "Courier New", Courier, monospace;
+      font-size: 0.68rem;
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      background: rgba(219, 39, 119, 0.10);
+      color: var(--c);
+      border: 1px solid rgba(219, 39, 119, 0.22);
+      white-space: nowrap;
+    }
+
+    /* ── Content ───────────────────────────────────────────────────── */
+    .proj-content {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 0 2rem 5rem;
+    }
+
+    .proj-section { margin-bottom: 3.5rem; }
+
+    .section-label {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+    }
+    .section-label span {
+      font-family: "Courier New", Courier, monospace;
+      font-size: 0.7rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      white-space: nowrap;
+    }
+    .section-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    .prose p {
+      font-size: 0.94rem;
+      line-height: 1.8;
+      color: var(--text-dim);
+      margin-bottom: 1.1rem;
+    }
+    .prose p:last-child { margin-bottom: 0; }
+    .prose p strong { color: var(--text); font-weight: 600; }
+
+    /* ── Screenshots ───────────────────────────────────────────────── */
+    .screenshots-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+    }
+
+    figure {
+      background: var(--bg-card);
+      border: 1px solid var(--border-card);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: var(--shadow-card);
+    }
+
+    .screenshot-ph {
+      aspect-ratio: 16 / 10;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(219, 39, 119, 0.07);
+      border-bottom: 1px solid var(--border-card);
+    }
+    .screenshot-ph svg {
+      width: 32px; height: 32px;
+      stroke: var(--c);
+      fill: none;
+      stroke-width: 1.5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      opacity: 0.45;
+    }
+
+    figure img {
+      width: 100%;
+      display: block;
+      border-bottom: 1px solid var(--border-card);
+    }
+
+    figcaption {
+      padding: 0.6rem 1rem;
+      font-size: 0.72rem;
+      color: var(--text-dim);
+      font-family: "Courier New", Courier, monospace;
+    }
+
+    /* ── Features grid ─────────────────────────────────────────────── */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+    }
+
+    .feature-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-card);
+      border-radius: 12px;
+      padding: 1.15rem;
+      box-shadow: var(--shadow-card);
+    }
+
+    .feature-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      background: rgba(219, 39, 119, 0.12);
+      border: 1px solid rgba(219, 39, 119, 0.22);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 0.75rem;
+    }
+    .feature-icon svg {
+      width: 16px; height: 16px;
+      stroke: var(--c);
+      fill: none;
+      stroke-width: 1.75;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .feature-title {
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: -0.015em;
+      color: var(--text);
+      margin-bottom: 0.3rem;
+    }
+
+    .feature-desc {
+      font-size: 0.78rem;
+      color: var(--text-dim);
+      line-height: 1.6;
+    }
+
+    /* ── Getting started ───────────────────────────────────────────── */
+    .code-block {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-top: 1rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border-card);
+      border-radius: 10px;
+      padding: 0.85rem 1rem;
+      box-shadow: var(--shadow-card);
+    }
+    .code-block code {
+      flex: 1;
+      font-family: "Courier New", Courier, monospace;
+      font-size: 0.82rem;
+      color: var(--c);
+      word-break: break-all;
+    }
+    .copy-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      width: 30px;
+      height: 30px;
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      cursor: pointer;
+      color: var(--text-dim);
+      transition: border-color 0.15s, color 0.15s;
+    }
+    .copy-btn:hover { border-color: var(--c); color: var(--c); }
+    .copy-btn svg {
+      width: 13px; height: 13px;
+      stroke: currentColor; fill: none;
+      stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+    }
+    .github-callout {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-top: 1rem;
+      padding: 1rem 1.1rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border-card);
+      border-left: 3px solid var(--c);
+      border-radius: 10px;
+      text-decoration: none;
+      box-shadow: var(--shadow-card);
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .github-callout:hover {
+      box-shadow: var(--shadow-up);
+      border-color: var(--c);
+    }
+    .github-callout > svg:first-child {
+      width: 20px; height: 20px;
+      stroke: var(--c); fill: none;
+      stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round;
+      flex-shrink: 0;
+    }
+    .github-callout > div { flex: 1; }
+    .github-callout-title {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 0.2rem;
+    }
+    .github-callout-desc {
+      font-size: 0.78rem;
+      color: var(--text-dim);
+      line-height: 1.55;
+    }
+    .github-callout-arrow {
+      width: 16px; height: 16px;
+      stroke: var(--c); fill: none;
+      stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+      flex-shrink: 0;
+      opacity: 0;
+      transform: translateX(-4px);
+      transition: opacity 0.15s, transform 0.15s;
+    }
+    .github-callout:hover .github-callout-arrow {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    .install-alt-links {
+      display: flex;
+      gap: 0.6rem;
+      margin-top: 0.75rem;
+      flex-wrap: wrap;
+    }
+    .alt-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.45rem 0.9rem;
+      border: 1px solid var(--border-card);
+      border-radius: 7px;
+      background: var(--bg-card);
+      font-size: 0.8rem;
+      color: var(--text-dim);
+      text-decoration: none;
+      box-shadow: var(--shadow-card);
+      transition: border-color 0.15s, color 0.15s;
+    }
+    .alt-link:hover { border-color: var(--c); color: var(--c); }
+    .alt-link svg {
+      width: 12px; height: 12px;
+      stroke: currentColor; fill: none;
+      stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+      flex-shrink: 0;
+    }
+
+    .launch-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      background: var(--c);
+      color: #fff;
+      text-decoration: none;
+      padding: 0.65rem 1.3rem;
+      border-radius: 8px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      margin-top: 0.5rem;
+      transition: filter 0.15s, transform 0.15s;
+    }
+    .launch-btn:hover { filter: brightness(1.08); transform: translateY(-1px); }
+    .launch-btn svg {
+      width: 13px; height: 13px;
+      stroke: currentColor; fill: none;
+      stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+    }
+
+    .install-note {
+      margin-top: 0.9rem;
+      font-size: 0.8rem;
+      color: var(--text-dim);
+      line-height: 1.6;
+    }
+
+    /* ── Links row ─────────────────────────────────────────────────── */
+    .proj-links-row {
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+      flex-wrap: wrap;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .proj-link {
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      font-size: 0.82rem;
+      color: var(--text-dim);
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+    .proj-link:hover { color: var(--c); }
+    .proj-link svg {
+      width: 12px; height: 12px;
+      stroke: currentColor; fill: none;
+      stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+    }
+
+    /* ── Footer ────────────────────────────────────────────────────── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 1.5rem 2rem;
+      text-align: center;
+      font-size: 0.78rem;
+      color: var(--text-dim);
+      transition: border-color 0.2s;
+    }
+    footer a { color: inherit; text-decoration: none; transition: color 0.15s; }
+    footer a:hover { color: var(--text); }
+
+    /* ── Responsive ────────────────────────────────────────────────── */
+    @media (max-width: 680px) {
+      .proj-hero { flex-direction: column; gap: 1.25rem; padding: 2.5rem 1.25rem 2rem; }
+      .proj-content { padding: 0 1.25rem 3.5rem; }
+      .screenshots-grid { grid-template-columns: 1fr; }
+      .features-grid { grid-template-columns: 1fr; }
+      header { padding: 0 1.25rem; }
+    }
+    @media (min-width: 681px) and (max-width: 860px) {
+      .features-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+  
+    /* ── Neon Neko Café: retro extras ──────────────────────────────── */
+    :root { --c2: #0891b2; }
+    [data-theme="dark"] { --c2: #22d3ee; }
+
+    .proj-logo { background: #1a0f2e; }
+    .proj-logo img { width: 48px; height: 48px; image-rendering: pixelated; }
+
+    h1.proj-title { text-shadow: 2px 0 0 color-mix(in srgb, var(--c2) 45%, transparent); }
+
+    .hero-cta { display: flex; gap: 0.6rem; flex-wrap: wrap; align-items: center; margin-top: 1.4rem; }
+    .hero-cta .launch-btn { margin-top: 0; }
+    [data-theme="dark"] .launch-btn { color: #1a0f2e; }
+
+    /* screens: pixel art shown big, crisp, at the shape a CRT showed it */
+    .screen {
+      position: relative;
+      display: block;
+      width: 100%;
+      background: #0b0716;
+      border-bottom: 1px solid var(--border-card);
+      cursor: zoom-in;
+      padding: 0;
+      border-top: 0; border-left: 0; border-right: 0;
+    }
+    .screen img {
+      display: block;
+      width: 100%;
+      height: auto;
+      border: 0;
+    }
+    .screen.px img { image-rendering: pixelated; aspect-ratio: 4 / 3; height: auto; }
+    .screen.crt::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background:
+        repeating-linear-gradient(to bottom, rgba(0,0,0,0) 0, rgba(0,0,0,0) 2px, rgba(0,0,0,0.22) 3px, rgba(0,0,0,0) 4px),
+        radial-gradient(ellipse at center, rgba(0,0,0,0) 62%, rgba(0,0,0,0.35) 100%);
+      mix-blend-mode: multiply;
+    }
+    figure img { border-bottom: 0; }
+
+    .screenshots-grid.wide { grid-template-columns: 1fr; }
+    .screenshots-grid + .screenshots-grid { margin-top: 1rem; }
+
+    .mode-strip {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 1rem;
+    }
+    .mode-strip figure { grid-column: span 2; }
+    .mode-strip figure:nth-child(-n+2) { grid-column: span 3; }
+    .mode-strip figcaption b { color: var(--text); font-weight: 700; margin-right: 0.4rem; }
+
+    .viz-strip { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.75rem; margin-top: 1rem; }
+    .viz-strip figcaption { padding: 0.5rem 0.7rem; }
+
+    /* shown smaller than the original: let the browser smooth it, skip the scanlines */
+    .mode-strip figure:nth-child(n+3) .screen.px img,
+    .viz-strip .screen.px img { image-rendering: auto; }
+    .mode-strip figure:nth-child(n+3) .screen.crt::after,
+    .viz-strip .screen.crt::after { display: none; }
+
+    .chips { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 1.1rem; }
+    .chip {
+      font-family: "Courier New", Courier, monospace;
+      font-size: 0.7rem;
+      padding: 0.25rem 0.55rem;
+      border-radius: 4px;
+      border: 1px solid var(--border-card);
+      background: var(--bg-card);
+      color: var(--text-dim);
+      white-space: nowrap;
+    }
+    .chip b { color: var(--c); font-weight: 700; }
+
+    .dos-prompt {
+      margin-top: 1.1rem;
+      background: #0b0716;
+      color: #c9c3d9;
+      border-radius: 10px;
+      padding: 0.9rem 1.1rem;
+      font-family: "Courier New", Courier, monospace;
+      font-size: 0.8rem;
+      line-height: 1.6;
+      box-shadow: var(--shadow-card);
+      overflow-x: auto;
+      white-space: pre;
+    }
+    .dos-prompt .p { color: #f472b6; }
+    .dos-prompt .k { color: #67e8f9; }
+    .dos-prompt .cur { display: inline-block; width: 0.6em; height: 1em; background: #c9c3d9; vertical-align: -0.15em; animation: blink 1.06s steps(1) infinite; }
+    @keyframes blink { 50% { opacity: 0; } }
+    @media (prefers-reduced-motion: reduce) { .dos-prompt .cur { animation: none; } }
+
+    /* lightbox */
+    .lightbox {
+      margin: auto;
+      border: 0;
+      padding: 0;
+      background: transparent;
+      max-width: min(96vw, 1400px);
+      max-height: 92vh;
+    }
+    .lightbox::backdrop { background: rgba(8, 5, 18, 0.88); }
+    .lightbox img {
+      display: block;
+      max-width: min(96vw, 1400px);
+      max-height: 86vh;
+      width: auto;
+      height: auto;
+      border-radius: 8px;
+    }
+    .lightbox img.px { image-rendering: pixelated; }
+    .lightbox p {
+      font-family: "Courier New", Courier, monospace;
+      font-size: 0.75rem;
+      color: #c9c3d9;
+      text-align: center;
+      padding-top: 0.6rem;
+    }
+
+    @media (max-width: 860px) {
+      .viz-strip { grid-template-columns: repeat(3, 1fr); }
+    }
+    @media (max-width: 680px) {
+      .mode-strip { grid-template-columns: 1fr; }
+      .mode-strip figure, .mode-strip figure:nth-child(-n+2) { grid-column: auto; }
+      .viz-strip { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <a href="/" class="back-link">
+      <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+      Back
+    </a>
+    <button class="theme-btn" onclick="toggleTheme()" aria-label="Toggle colour scheme">
+      <svg id="theme-icon" viewBox="0 0 24 24">
+        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+      </svg>
+      <span id="theme-label">Dark</span>
+    </button>
+  </header>
+
+  <main>
+
+    <section class="proj-hero">
+      <div class="proj-logo">
+        <img src="img/icon.png" width="48" height="48" alt="Kiko, pixel-art icon" />
+      </div>
+      <div class="proj-hero-body">
+        <p class="proj-eyebrow">project &middot; i&rsquo;m not proud</p>
+        <h1 class="proj-title">Neon Neko Caf&eacute;</h1>
+        <p class="proj-tagline">A cyberpunk cat girl caf&eacute; idle clicker. In three editions. One of them is for MS-DOS.</p>
+        <div class="platforms">
+          <span class="plat-label">Runs on</span>
+          <span class="plat" title="Runs in any modern browser">
+            <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="7" r="6"/><path d="M7 1c-2 2-3 3.8-3 6s1 4 3 6M7 1c2 2 3 3.8 3 6s-1 4-3 6M1 7h12"/><path d="M2 4h10M2 10h10"/></svg>
+            Any browser
+          </span>
+          <span class="plat" title="Windows 95 through 11">
+            <svg viewBox="0 0 14 14"><rect x=".5" y=".5" width="5.5" height="5.5"/><rect x="8" y=".5" width="5.5" height="5.5"/><rect x=".5" y="8" width="5.5" height="5.5"/><rect x="8" y="8" width="5.5" height="5.5"/></svg>
+            Windows
+          </span>
+          <span class="plat" title="MS-DOS on a 386 or better, or DOSBox">
+            <svg viewBox="0 0 14 12" fill="currentColor"><rect x="1" y="1" width="12" height="8" rx="1"/><rect x="4" y="9" width="6" height="2" rx=".5"/></svg>
+            MS-DOS
+          </span>
+        </div>
+        <div class="platforms">
+          <span class="plat">Windows 95 &rarr; 11 &middot; 386+ DOS &middot; DOSBox &middot; DOSBox-X in WebAssembly</span>
+        </div>
+        <div class="tags">
+          <span class="tag">JavaScript</span>
+          <span class="tag">C</span>
+          <span class="tag">Open Watcom</span>
+          <span class="tag">DOS/32A</span>
+          <span class="tag">Win32</span>
+          <span class="tag">WebAssembly</span>
+          <span class="tag">Regrettable</span>
+        </div>
+        <div class="hero-cta">
+          <a class="launch-btn" href="/neon-neko-cafe/">
+            <svg viewBox="0 0 24 24"><polygon points="6 4 20 12 6 20 6 4"/></svg>
+            Play it in your browser
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <div class="proj-content">
+
+      <section class="proj-section">
+        <figure>
+          <button class="screen" data-full="img/html5-attract.png" data-cap="HTML5 edition, attract mode: the game plays itself if you leave it alone"><img src="img/html5-attract.png" alt="Neon Neko Café HTML5 edition: Kiko behind the counter with a crew of cat girl staff, demo mode banner" /></button>
+          <figcaption>HTML5 edition &middot; attract mode &mdash; leave it alone and it plays itself</figcaption>
+        </figure>
+      </section>
+
+      <section class="proj-section">
+        <div class="section-label"><span>Overview</span></div>
+        <div class="prose">
+          <p>Let&rsquo;s get this out of the way: it&rsquo;s a pixel-art incremental clicker about <strong>Kiko</strong>, a cat girl who runs a caf&eacute; in a rainy cyberpunk megacity. You pet her. Hearts come out. You spend the hearts hiring a neon crew &mdash; Hover Couriers, Synth Baristas, Netrunners, an AI Goddess &mdash; who make more hearts while you aren&rsquo;t looking. Eventually you relocate to a new district, keep your stars, and do it all again. That is the whole game. It is, regrettably, quite moreish.</p>
+          <p>It should have stopped at the browser version. It did not. There is now a <strong>real MS-DOS edition</strong>: a 386+ protected-mode game written in C with Open Watcom and the DOS/32A extender, with a proper <strong>SETUP.EXE</strong>, drivers for every graphics and sound card that mattered between 1984 and 1995, and a digitised &ldquo;Nyaa~!&rdquo; played through the PC speaker, because of course.</p>
+          <p>Then, because the DOS code was already sitting there, there&rsquo;s a <strong>native Win32 edition</strong> that shares the same game code: one small EXE, no installer, no DirectX, no runtime, and it runs on everything from Windows 95 to Windows 11. And the DOS edition also runs <strong>inside the web page</strong>, in DOSBox-X compiled to WebAssembly, with General MIDI piped out to a soundfont synth in the browser. All three editions share the same art, the same six songs and the same rules.</p>
+        </div>
+      </section>
+
+      <section class="proj-section">
+        <div class="section-label"><span>HTML5 Edition</span></div>
+        <div class="prose">
+          <p>The original. Plain JavaScript, no framework, every sprite generated from code &mdash; the cat girls, the caf&eacute;, the six districts, the music. It plays straight in the page, saves to your browser, and has a full-screen mode for those who want to commit.</p>
+        </div>
+        <div class="screenshots-grid" style="margin-top:1.5rem">
+          <figure>
+            <button class="screen" data-full="img/html5-cafe.png" data-cap="Neon Alley, early game: the crew starts to fill out"><img src="img/html5-cafe.png" alt="HTML5 edition, Neon Alley district with staff panel" loading="lazy" /></button>
+            <figcaption>Neon Alley &middot; hiring the first crew</figcaption>
+          </figure>
+          <figure>
+            <button class="screen" data-full="img/html5-upgrades.png" data-cap="Chrome Harbor and the upgrade tree"><img src="img/html5-upgrades.png" alt="HTML5 edition, Chrome Harbor district with the upgrade tree open" loading="lazy" /></button>
+            <figcaption>Chrome Harbor &middot; the upgrade tree</figcaption>
+          </figure>
+        </div>
+        <div class="screenshots-grid wide">
+          <figure>
+            <button class="screen" data-full="img/html5-jukebox.png" data-cap="Kiko's Jukebox: all six songs, five visualisers"><img src="img/html5-jukebox.png" alt="Kiko's Jukebox with spectrum visualiser and track list" loading="lazy" /></button>
+            <figcaption>Kiko&rsquo;s Jukebox &middot; six songs, five visualisers, one dancing cat girl</figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <section class="proj-section">
+        <div class="section-label"><span>Every Graphics Card Your Dad Owned</span></div>
+        <div class="prose">
+          <p>The DOS edition draws the same 320&times;200 caf&eacute; on five kinds of display adapter. Each card gets its own conversion: 256 colours on VGA, an ordered dither down to 16 on EGA and Tandy, four on CGA (cyan, magenta, white, regret), and a luminance dither up to 720&times;348 in one colour on Hercules. Interface text is mapped without dithering, so it stays crisp on all of them. Screens below are shown at 4:3, the way a monitor actually stretched them.</p>
+        </div>
+        <div class="mode-strip" style="margin-top:1.5rem">
+          <figure>
+            <button class="screen px crt" data-full="img/mode-vga.png" data-cap="VGA, 256 colours" data-px><img src="img/mode-vga.png" alt="VGA mode screenshot" loading="lazy" /></button>
+            <figcaption><b>VGA</b>256 colours</figcaption>
+          </figure>
+          <figure>
+            <button class="screen px crt" data-full="img/mode-ega.png" data-cap="EGA, 16 colours, dithered" data-px><img src="img/mode-ega.png" alt="EGA mode screenshot" loading="lazy" /></button>
+            <figcaption><b>EGA</b>16 colours, dithered</figcaption>
+          </figure>
+          <figure>
+            <button class="screen px crt" data-full="img/mode-tandy.png" data-cap="Tandy 1000 / PCjr, 16 colours" data-px><img src="img/mode-tandy.png" alt="Tandy mode screenshot" loading="lazy" /></button>
+            <figcaption><b>Tandy / PCjr</b>16 colours</figcaption>
+          </figure>
+          <figure>
+            <button class="screen px crt" data-full="img/mode-cga.png" data-cap="CGA, 4 colours. Magenta and cyan, as nature intended." data-px><img src="img/mode-cga.png" alt="CGA mode screenshot" loading="lazy" /></button>
+            <figcaption><b>CGA</b>4 colours, as nature intended</figcaption>
+          </figure>
+          <figure>
+            <button class="screen px crt" data-full="img/mode-hercules.png" data-cap="Hercules, 720×348 monochrome" data-px><img src="img/mode-hercules.png" alt="Hercules monochrome mode screenshot" loading="lazy" /></button>
+            <figcaption><b>Hercules</b>720&times;348 mono</figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <section class="proj-section">
+        <div class="section-label"><span>The MS-DOS Edition</span></div>
+        <div class="prose">
+          <p>A genuine DOS game: 32-bit protected mode on a 386 or better, in a single EXE with the extender bound in. It has an attract mode that kicks in on the title screen, a handful of cheat codes (yes, including that one), and one chiptune sequencer that talks to whatever card you&rsquo;ve got &mdash; a software pulse-and-noise synth streamed to the Sound Blasters, the Gravis Ultrasound and the Disney Sound Source, real FM notes and rhythm-mode drums on an AdLib, the three-voice chip on a Tandy, MIDI out to a Roland MT-32 or a General MIDI module, and one square wave on the PC speaker, picked by priority.</p>
+        </div>
+        <div class="chips">
+          <span class="chip"><b>Sound Blaster</b> 1.0 &middot; 2.0 &middot; Pro &middot; 16</span>
+          <span class="chip"><b>AdLib</b></span>
+          <span class="chip"><b>Gravis Ultrasound</b></span>
+          <span class="chip"><b>Roland MT-32</b></span>
+          <span class="chip"><b>General MIDI</b> MPU-401</span>
+          <span class="chip"><b>Disney Sound Source</b></span>
+          <span class="chip"><b>Tandy</b> 3-voice</span>
+          <span class="chip"><b>PC speaker</b> with digitised Nyaa~!</span>
+        </div>
+        <div class="screenshots-grid" style="margin-top:1.5rem">
+          <figure>
+            <button class="screen px crt" data-full="img/dos-title.png" data-cap="Title screen, MS-DOS edition" data-px><img src="img/dos-title.png" alt="MS-DOS edition title screen" loading="lazy" /></button>
+            <figcaption>Title screen &middot; VGA</figcaption>
+          </figure>
+          <figure>
+            <button class="screen px crt" data-full="img/dos-attract.png" data-cap="Attract mode in Skyline Tier" data-px><img src="img/dos-attract.png" alt="MS-DOS edition attract mode" loading="lazy" /></button>
+            <figcaption>Attract mode &middot; Skyline Tier</figcaption>
+          </figure>
+          <figure>
+            <button class="screen px crt" data-full="img/dos-frenzy.png" data-cap="Purr Frenzy in Rain Market" data-px><img src="img/dos-frenzy.png" alt="MS-DOS edition purr frenzy" loading="lazy" /></button>
+            <figcaption>Purr Frenzy &middot; Rain Market</figcaption>
+          </figure>
+          <figure>
+            <button class="screen px crt" data-full="img/dos-relocate.png" data-cap="Relocating to a new district: keep your stars, start again" data-px><img src="img/dos-relocate.png" alt="MS-DOS edition relocate panel with constellation" loading="lazy" /></button>
+            <figcaption>Relocate &middot; the prestige bit</figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <section class="proj-section">
+        <div class="section-label"><span>SETUP.EXE, As Is Tradition</span></div>
+        <div class="prose">
+          <p>No self-respecting DOS game shipped without a blue setup program, so this one has one. It sniffs out your hardware, lets you pick the video mode, music device and sound effects device separately, plays a test sound, and saves it all to <strong>NEKO.CFG</strong>. It works with the keyboard or the mouse, and it has its own text-mode version of Kiko&rsquo;s Jukebox with a dancing Kiko and five visualisers drawn in box characters.</p>
+        </div>
+        <div class="dos-prompt"><span class="p">C:\NEKO&gt;</span> <span class="k">SETUP</span>
+<span class="p">C:\NEKO&gt;</span> <span class="k">NEKO</span> /VGA /SB16
+<span class="p">C:\NEKO&gt;</span> <span class="cur"></span></div>
+        <div class="screenshots-grid" style="margin-top:1.5rem">
+          <figure>
+            <button class="screen px crt" data-full="img/setup-welcome.png" data-cap="SETUP.EXE has already guessed your hardware" data-px><img src="img/setup-welcome.png" alt="SETUP.EXE welcome dialog" loading="lazy" /></button>
+            <figcaption>&ldquo;SETUP looked for your hardware&rdquo;</figcaption>
+          </figure>
+          <figure>
+            <button class="screen px crt" data-full="img/setup-menu.png" data-cap="SETUP.EXE main menu" data-px><img src="img/setup-menu.png" alt="SETUP.EXE main menu" loading="lazy" /></button>
+            <figcaption>Main menu &middot; the blue of a thousand installers</figcaption>
+          </figure>
+        </div>
+        <div class="viz-strip">
+          <figure>
+            <button class="screen px crt" data-full="img/setup-juke-spectrum.png" data-cap="SETUP jukebox: spectrum" data-px><img src="img/setup-juke-spectrum.png" alt="Text-mode jukebox, spectrum visualiser" loading="lazy" /></button>
+            <figcaption>Spectrum</figcaption>
+          </figure>
+          <figure>
+            <button class="screen px crt" data-full="img/setup-juke-scope.png" data-cap="SETUP jukebox: oscilloscope" data-px><img src="img/setup-juke-scope.png" alt="Text-mode jukebox, oscilloscope visualiser" loading="lazy" /></button>
+            <figcaption>Oscilloscope</figcaption>
+          </figure>
+          <figure>
+            <button class="screen px crt" data-full="img/setup-juke-pianoroll.png" data-cap="SETUP jukebox: piano roll" data-px><img src="img/setup-juke-pianoroll.png" alt="Text-mode jukebox, piano roll visualiser" loading="lazy" /></button>
+            <figcaption>Piano roll</figcaption>
+          </figure>
+          <figure>
+            <button class="screen px crt" data-full="img/setup-juke-plasma.png" data-cap="SETUP jukebox: Neko Plasma" data-px><img src="img/setup-juke-plasma.png" alt="Text-mode jukebox, plasma visualiser" loading="lazy" /></button>
+            <figcaption>Neko Plasma</figcaption>
+          </figure>
+          <figure>
+            <button class="screen px crt" data-full="img/setup-juke-rave.png" data-cap="SETUP jukebox: Neko Rave" data-px><img src="img/setup-juke-rave.png" alt="Text-mode jukebox, rave visualiser" loading="lazy" /></button>
+            <figcaption>Neko Rave</figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <section class="proj-section">
+        <div class="section-label"><span>DOS, In Your Browser, Somehow</span></div>
+        <div class="prose">
+          <p>The site boots the real DOS executable in <strong>DOSBox-X compiled to WebAssembly</strong>. Pick a machine (VGA, EGA, CGA, Hercules or Tandy), pick the music and effects cards, press power. The browser build of DOSBox has no MIDI synth, so the game streams its MIDI bytes to a file on the emulated C: drive and the page plays them on FluidSynth with a General MIDI soundfont &mdash; MT-32 display messages included. Your save is copied out to the browser, so the caf&eacute; survives a reload.</p>
+        </div>
+        <div class="screenshots-grid wide" style="margin-top:1.5rem">
+          <figure>
+            <button class="screen" data-full="img/dos-in-browser.png" data-cap="The MS-DOS edition running in DOSBox-X, in the page"><img src="img/dos-in-browser.png" alt="The MS-DOS edition running in DOSBox-X inside the web page, with machine and sound card pickers" loading="lazy" /></button>
+            <figcaption>The MS-DOS edition, running in the page &middot; machine and sound cards on the right</figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <section class="proj-section">
+        <div class="section-label"><span>Windows 95 Through 11</span></div>
+        <div class="prose">
+          <p>The Windows edition compiles the DOS edition&rsquo;s game code against a small Win32 platform layer: GDI for scaling, <strong>waveOut</strong> on its own thread for audio, the game data packed into the EXE as a resource, and saves in <strong>%APPDATA%</strong>. It imports nothing Windows 95 didn&rsquo;t have. It also has a pixel-art jukebox, borderless full screen, and a choice of square or 4:3 pixels. Press F1 &mdash; there&rsquo;s a hint telling you to press F1.</p>
+        </div>
+        <div class="screenshots-grid" style="margin-top:1.5rem">
+          <figure>
+            <button class="screen px" data-full="img/win-cafe.png" data-cap="Windows edition: the café" data-px><img src="img/win-cafe.png" alt="Windows edition café" loading="lazy" /></button>
+            <figcaption>The caf&eacute; &middot; Windows edition</figcaption>
+          </figure>
+          <figure>
+            <button class="screen px" data-full="img/win-staff.png" data-cap="Windows edition: hiring staff" data-px><img src="img/win-staff.png" alt="Windows edition staff panel" loading="lazy" /></button>
+            <figcaption>Staff panel</figcaption>
+          </figure>
+          <figure>
+            <button class="screen px" data-full="img/win-jukebox.png" data-cap="Windows edition: Kiko's Jukebox, piano roll" data-px><img src="img/win-jukebox.png" alt="Windows edition jukebox, piano roll" loading="lazy" /></button>
+            <figcaption>Jukebox &middot; piano roll</figcaption>
+          </figure>
+          <figure>
+            <button class="screen px" data-full="img/win-plasma.png" data-cap="Windows edition: Kiko's Jukebox, Neko Plasma" data-px><img src="img/win-plasma.png" alt="Windows edition jukebox, plasma" loading="lazy" /></button>
+            <figcaption>Jukebox &middot; Neko Plasma</figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <section class="proj-section">
+        <div class="section-label"><span>Features</span></div>
+        <div class="features-grid">
+
+          <div class="feature-card">
+            <div class="feature-icon">
+              <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            </div>
+            <p class="feature-title">Pet, hire, relocate</p>
+            <p class="feature-desc">Eight cat girl staff, an upgrade tree, Purr Frenzies, roaming customers who tip, 32 achievements, and six districts to move the caf&eacute; through.</p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon">
+              <svg viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+            </div>
+            <p class="feature-title">Kiko&rsquo;s Jukebox</p>
+            <p class="feature-desc">Six original songs, one per district, with spectrum, oscilloscope, piano roll, plasma and rave visualisers. In all three editions, and in SETUP.</p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon">
+              <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+            </div>
+            <p class="feature-title">Five display adapters</p>
+            <p class="feature-desc">VGA, EGA, CGA, Hercules and Tandy/PCjr, each with its own dithering, rather than a lazy palette swap.</p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon">
+              <svg viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
+            </div>
+            <p class="feature-title">Every sound card</p>
+            <p class="feature-desc">Sound Blaster family, AdLib, Gravis Ultrasound, MT-32, General MIDI, Disney Sound Source, Tandy and the humble PC speaker.</p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon">
+              <svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            </div>
+            <p class="feature-title">Attract mode</p>
+            <p class="feature-desc">Leave the title screen alone and Kiko runs a demo caf&eacute; on her own, like an arcade cabinet in a shopping mall. Touch the mouse and it stops.</p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon">
+              <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            </div>
+            <p class="feature-title">Secret codes</p>
+            <p class="feature-desc">Type them while you play. Some summon customers, some throw a party. Using any of them stamps a small &ldquo;CHEATER&rdquo; on your records until you wipe your save.</p>
+          </div>
+
+        </div>
+      </section>
+
+      <section class="proj-section">
+        <div class="section-label"><span>Play It</span></div>
+        <div class="prose">
+          <p>The quickest way is the browser: both the HTML5 edition and the MS-DOS edition run on the game&rsquo;s page, with a switch at the top. If you want to take it home, there are downloads for real DOS hardware, for DOSBox (with ready-made configs for each machine), and for Windows.</p>
+        </div>
+        <a class="launch-btn" href="/neon-neko-cafe/" style="margin-top:1rem">
+          <svg viewBox="0 0 24 24"><polygon points="6 4 20 12 6 20 6 4"/></svg>
+          Play Neon Neko Caf&eacute;
+        </a>
+        <div class="install-alt-links">
+          <a class="alt-link" href="/neon-neko-cafe/downloads/NeonNekoCafe-Windows.zip">
+            <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Windows
+          </a>
+          <a class="alt-link" href="/neon-neko-cafe/downloads/NeonNekoCafe-DOS.zip">
+            <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            MS-DOS
+          </a>
+          <a class="alt-link" href="/neon-neko-cafe/downloads/NeonNekoCafe-DOSBox.zip">
+            <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            DOSBox
+          </a>
+        </div>
+        <p class="install-note">Windows: unzip and run NeonNekoCafe.exe &mdash; Windows 95 through 11, no installer. MS-DOS: a 386 or better; run SETUP first. DOSBox: unzip and open the .conf for the machine you want.</p>
+      </section>
+
+      <div class="proj-links-row">
+        <a class="proj-link" href="/neon-neko-cafe/">
+          <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          Play
+        </a>
+        <a class="proj-link" href="/neon-neko-cafe/#dos">
+          <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+          MS-DOS in the browser
+        </a>
+        <a class="proj-link" href="/neon-neko-cafe/THIRD-PARTY-NOTICES.txt">
+          <svg viewBox="0 0 24 24"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg>
+          Third-party notices
+        </a>
+      </div>
+
+    </div>
+
+  </main>
+
+  <dialog class="lightbox" id="lightbox" aria-label="Screenshot">
+    <img id="lb-img" alt="" />
+    <p id="lb-cap"></p>
+  </dialog>
+
+  <footer>
+    <p>Joshua Penman &nbsp;&middot;&nbsp; <a href="https://github.com/KiwiGeek" target="_blank" rel="noopener">@KiwiGeek</a> &nbsp;&middot;&nbsp; <a id="sig"></a></p>
+  </footer>
+
+<script>
+        const ICON_MOON = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
+    const ICON_SUN  = '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>';
+
+    const root  = document.documentElement;
+    const icon  = document.getElementById('theme-icon');
+    const label = document.getElementById('theme-label');
+
+    let dark = localStorage.getItem('theme') === 'dark'
+      || (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches);
+
+    function applyTheme() {
+      root.setAttribute('data-theme', dark ? 'dark' : 'light');
+      icon.innerHTML  = dark ? ICON_SUN : ICON_MOON;
+      label.textContent = dark ? 'Light' : 'Dark';
+      localStorage.setItem('theme', dark ? 'dark' : 'light');
+    }
+
+    function toggleTheme() {
+      dark = !dark;
+      applyTheme();
+    }
+
+    window.matchMedia('(prefers-color-scheme: dark)')
+      .addEventListener('change', e => {
+        if (!localStorage.getItem('theme')) { dark = e.matches; applyTheme(); }
+      });
+
+    applyTheme();
+
+    (function() {
+      const k = [0x42, 0x17, 0x3F];
+      const d = [40,120,76,42,98,94,2,103,90,44,122,94,44,57,91,39,97];
+      const s = d.map((c, i) => String.fromCharCode(c ^ k[i % k.length])).join('');
+      const n = document.getElementById('sig');
+      n.href = 'mai' + 'lto:' + s;
+      n.textContent = s;
+    })();
+
+    // Screenshot lightbox: click any screen to see it big (pixel art stays crisp)
+    (function() {
+      const dlg = document.getElementById('lightbox');
+      const img = document.getElementById('lb-img');
+      const cap = document.getElementById('lb-cap');
+      if (!dlg || !dlg.showModal) return;
+      document.querySelectorAll('.screen[data-full]').forEach(b => {
+        b.setAttribute('aria-label', 'Enlarge: ' + (b.dataset.cap || 'screenshot'));
+        b.addEventListener('click', () => {
+          img.src = b.dataset.full;
+          img.alt = b.querySelector('img').alt;
+          img.className = b.hasAttribute('data-px') ? 'px' : '';
+          const px = b.hasAttribute('data-px');
+          img.style.aspectRatio = px ? '4 / 3' : '';
+          img.style.width = px ? 'min(96vw, 1066px, calc(86vh * 4 / 3))' : '';
+          cap.textContent = b.dataset.cap || '';
+          dlg.showModal();
+        });
+      });
+      dlg.addEventListener('click', () => dlg.close());
+    })();
+  </script>
+
+</body>
+</html>
