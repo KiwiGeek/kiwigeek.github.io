@@ -423,9 +423,178 @@
       .legend { padding: 0.25rem 1.25rem 3rem; }
       header { padding: 0 1.25rem; }
     }
+
+    /* ── Background effects ────────────────────────────────────────── */
+    #fx {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      pointer-events: none;
+      image-rendering: pixelated;
+    }
+    main, footer { position: relative; z-index: 1; }
+
+    /* Cards: a border spotlight that follows the pointer, plus a "heat" glow
+       each effect can drive, plus an optional tilt/parallax transform. */
+    .card {
+      --mx: -999px; --my: -999px; --prox: 0; --heat: 0; --tx: 0px; --ty: 0px;
+      background: color-mix(in srgb, var(--bg-card) 86%, transparent);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      transform: translate(var(--tx), var(--ty));
+      box-shadow:
+        var(--shadow-card),
+        0 0 0 1px color-mix(in srgb, var(--c) calc(var(--heat) * 70%), transparent),
+        0 0 calc(var(--heat) * 28px) color-mix(in srgb, var(--c) calc(var(--heat) * 45%), transparent);
+    }
+    .card:hover { transform: translate(var(--tx), calc(var(--ty) - 2px)); }
+    .card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 14px;
+      padding: 1px;
+      background: radial-gradient(260px circle at var(--mx) var(--my), var(--c), transparent 70%);
+      -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+      -webkit-mask-composite: xor;
+      mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+      opacity: var(--prox);
+      pointer-events: none;
+      z-index: 2;
+    }
+    .card::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 14px;
+      background: radial-gradient(420px circle at var(--mx) var(--my), color-mix(in srgb, var(--c) 7%, transparent), transparent 65%);
+      opacity: var(--prox);
+      pointer-events: none;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .card, .card:hover { transform: none; }
+    }
+
+    /* ── Background picker ─────────────────────────────────────────── */
+    .hdr-actions { display: flex; align-items: center; gap: 0.5rem; }
+    .fx-menu { position: relative; }
+    .fx-btn { gap: 0.5rem; padding-left: 0.45rem; }
+    .fx-ico {
+      width: 22px; height: 14px;
+      border-radius: 3px;
+      image-rendering: pixelated;
+      box-shadow: 0 0 0 1px var(--border);
+      flex-shrink: 0;
+    }
+    .fx-btn .fx-chev { width: 11px; height: 11px; transition: transform 0.15s; }
+    .fx-btn[aria-expanded="true"] .fx-chev { transform: rotate(180deg); }
+    .fx-btn.is-pinned .fx-ico { box-shadow: 0 0 0 1px var(--accent); }
+    .fx-btn-label { max-width: 11rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    .fx-panel {
+      position: absolute;
+      right: 0;
+      top: calc(100% + 10px);
+      width: min(600px, calc(100vw - 32px));
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      box-shadow: var(--shadow-up), 0 20px 50px rgba(0,0,0,0.18);
+      padding: 0.9rem;
+      opacity: 0;
+      transform: translateY(-4px) scale(0.985);
+      transform-origin: top right;
+      transition: opacity 0.14s, transform 0.14s;
+    }
+    .fx-panel.open { opacity: 1; transform: none; }
+    .fx-panel-hd, .fx-panel-ft {
+      display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; flex-wrap: wrap;
+    }
+    .fx-panel-hd { margin-bottom: 0.8rem; }
+    .fx-title, .fx-panel-ft {
+      font-family: "Courier New", Courier, monospace;
+      font-size: 0.7rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+    }
+    .fx-panel-ft { margin-top: 0.8rem; padding-top: 0.7rem; border-top: 1px solid var(--border); letter-spacing: 0.03em; text-transform: none; }
+    .fx-panel-ft b { color: var(--text); font-weight: 700; }
+    .fx-panel-ft kbd {
+      font-family: inherit; font-size: 0.68rem;
+      border: 1px solid var(--border); border-bottom-width: 2px; border-radius: 4px;
+      padding: 0 0.3rem; color: var(--text);
+    }
+    .fx-shuffle {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      background: none; border: 1px solid var(--border); border-radius: 6px;
+      color: var(--text-dim); font: inherit; font-size: 0.76rem;
+      padding: 0.35rem 0.7rem; cursor: pointer;
+      transition: color 0.15s, border-color 0.15s;
+    }
+    .fx-shuffle:hover { color: var(--text); border-color: var(--text-dim); }
+    .fx-shuffle svg { width: 13px; height: 13px; stroke: currentColor; fill: none; stroke-width: 1.8; }
+    .fx-shuffle svg circle { fill: currentColor; stroke: none; }
+    .fx-shuffle.spin svg { animation: fx-roll 0.45s ease-out; }
+    @keyframes fx-roll { from { transform: rotate(-200deg) scale(0.8); } to { transform: none; } }
+
+    .fx-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.55rem; }
+    .fx-tile {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      grid-template-rows: auto auto;
+      gap: 0.35rem 0.4rem;
+      align-items: baseline;
+      text-align: left;
+      background: none;
+      border: 1px solid var(--border-card);
+      border-radius: 9px;
+      padding: 0.4rem 0.4rem 0.5rem;
+      cursor: pointer;
+      color: var(--text-dim);
+      font: inherit;
+      transition: border-color 0.15s, transform 0.15s, box-shadow 0.15s, color 0.15s;
+    }
+    .fx-tile:hover, .fx-tile:focus-visible { color: var(--text); border-color: var(--text-dim); transform: translateY(-1px); outline: none; }
+    .fx-tile:focus-visible { box-shadow: 0 0 0 2px var(--accent); }
+    .fx-tile[aria-selected="true"] { color: var(--text); border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent), 0 0 18px color-mix(in srgb, var(--accent) 28%, transparent); }
+    .fx-thumb {
+      grid-column: 1 / -1;
+      width: 100%;
+      aspect-ratio: 16 / 10;
+      border-radius: 5px;
+      image-rendering: pixelated;
+      display: block;
+      background: #0b0716;
+    }
+    .fx-tile b {
+      font-family: "Courier New", Courier, monospace;
+      font-size: 0.66rem;
+      color: var(--accent);
+      font-weight: 700;
+    }
+    .fx-tile span { font-size: 0.74rem; line-height: 1.25; }
+    .fx-tile[aria-selected="true"] b::after { content: ' ●'; }
+
+    @media (max-width: 680px) {
+      .fx-grid { grid-template-columns: repeat(3, 1fr); }
+      .fx-keys { display: none; }
+    }
+    @media (max-width: 480px) {
+      .fx-btn-label { display: none; }
+      .fx-panel { position: fixed; left: 16px; right: 16px; width: auto; top: calc(56px + env(safe-area-inset-top, 0px) + 6px); max-height: calc(100vh - 90px); overflow-y: auto; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .fx-panel, .fx-tile { transition: none; }
+      .fx-shuffle.spin svg { animation: none; }
+    }
   </style>
 </head>
 <body>
+
+  <canvas id="fx" aria-hidden="true"></canvas>
 
   <!--
     Oh, hello. Didn't see you there.
@@ -439,12 +608,32 @@
 
   <header>
     <span class="wordmark">joshua<em>.penman</em></span>
-    <button class="theme-btn" onclick="toggleTheme()" aria-label="Toggle colour scheme">
-      <svg id="theme-icon" viewBox="0 0 24 24">
-        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
-      </svg>
-      <span id="theme-label">Dark</span>
-    </button>
+    <div class="hdr-actions">
+      <div class="fx-menu">
+        <button class="theme-btn fx-btn" id="fx-btn" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="fx-panel">
+          <canvas class="fx-ico" id="fx-ico" width="48" height="30" aria-hidden="true"></canvas>
+          <span class="fx-btn-label" id="fx-name">Background</span>
+          <svg class="fx-chev" viewBox="0 0 24 24" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="fx-panel" id="fx-panel" role="dialog" aria-label="Background effect" hidden>
+          <div class="fx-panel-hd">
+            <span class="fx-title">Background</span>
+            <button class="fx-shuffle" id="fx-shuffle" type="button">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8" cy="8" r="1.3"/><circle cx="16" cy="8" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="8" cy="16" r="1.3"/><circle cx="16" cy="16" r="1.3"/></svg>
+              Shuffle every visit
+            </button>
+          </div>
+          <div class="fx-grid" id="fx-grid" role="listbox" aria-label="Effects"></div>
+          <div class="fx-panel-ft"><span id="fx-mode"></span><span class="fx-keys"><kbd>[</kbd> <kbd>]</kbd> flip through</span></div>
+        </div>
+      </div>
+      <button class="theme-btn" onclick="toggleTheme()" aria-label="Toggle colour scheme">
+        <svg id="theme-icon" viewBox="0 0 24 24">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+        </svg>
+        <span id="theme-label">Dark</span>
+      </button>
+    </div>
   </header>
 
   <main>
@@ -1020,6 +1209,1201 @@
       const n = document.getElementById('sig');
       n.href = 'mai' + 'lto:' + s;
       n.textContent = s;
+    })();
+
+    // ── Background effects ─────────────────────────────────────────
+    // One low-res canvas behind the page (drawn at 1/3 scale, scaled up with
+    // crisp pixels). Each effect draws the background and decides how the
+    // cards react: --prox/--mx/--my drive a border spotlight, --heat an outer
+    // glow, --rx/--ry/--tx/--ty a tilt or parallax.
+    (function () {
+      const PX = 3;                                   // CSS pixels per canvas pixel
+      const canvas = document.getElementById('fx');
+      const ctx = canvas.getContext('2d');
+      const cards = [...document.querySelectorAll('.card')];
+      const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const fine = matchMedia('(hover: hover) and (pointer: fine)').matches;
+      let W = 0, H = 0, effect = null, name = 'grid', t0 = performance.now(), last = t0, raf = 0;
+      const mouse = { x: -1e4, y: -1e4, sx: -1e4, sy: -1e4, vx: 0, vy: 0, on: false };
+      let rects = [];
+
+      const isDark = () => document.documentElement.getAttribute('data-theme') === 'dark';
+      const ink = a => isDark() ? `rgba(229,227,219,${a})` : `rgba(24,23,15,${a})`;
+      const INK = () => isDark() ? [229, 227, 219] : [24, 23, 15];
+      // pixel buffer for the cell-based effects (one putImageData per frame)
+      let img = null, pix = null;
+      function pbuf() { if (!img || img.width !== W || img.height !== H) { img = ctx.createImageData(W, H); pix = new Uint32Array(img.data.buffer); } pix.fill(0); }
+      function pcol(c, a) { return ((Math.round(a * 255) & 255) << 24) | (c[2] << 16) | (c[1] << 8) | c[0]; }
+      function prect(x, y, w, h, v) { for (let j = y; j < y + h && j < H; j++) { const o = j * W; for (let i = x; i < x + w && i < W; i++) pix[o + i] = v; } }
+      const hex = c => { c = c.trim().replace('#', ''); return [0, 2, 4].map(i => parseInt(c.substr(i, 2), 16)); };
+      const accents = cards.map(c => hex(getComputedStyle(c).getPropertyValue('--c') || '#888888'));
+      const SITE = () => isDark() ? [96, 165, 250] : [29, 78, 216];
+      const rgba = (c, a) => `rgba(${c[0]},${c[1]},${c[2]},${a})`;
+      // Which cells of a cs-sized grid sit near or under a card:
+      // 0 = neither, i + 1 = within pad CSS px of card i, -(i + 1) = under card i.
+      let ringBuf = null;
+      function ringMap(cs, pad) {
+        const cw = Math.ceil(W / cs), ch = Math.ceil(H / cs), q = cs * PX;
+        if (!ringBuf || ringBuf.length !== cw * ch) ringBuf = new Int8Array(cw * ch);
+        const m = ringBuf; m.fill(0);
+        rects.forEach((r, i) => {
+          if (r.bottom < -pad || r.top > innerHeight + pad) return;
+          const x0 = Math.max(0, (r.left - pad) / q | 0), x1 = Math.min(cw - 1, (r.right + pad) / q | 0);
+          const y0 = Math.max(0, (r.top - pad) / q | 0), y1 = Math.min(ch - 1, (r.bottom + pad) / q | 0);
+          for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) {
+            const px = (x + 0.5) * q, py = (y + 0.5) * q, k = y * cw + x;
+            if (px >= r.left && px <= r.right && py >= r.top && py <= r.bottom) m[k] = -(i + 1);
+            else if (!m[k]) m[k] = i + 1;
+          }
+        });
+        return { m, cw, ch };
+      }
+
+      function resize() {
+        W = Math.ceil(innerWidth / PX); H = Math.ceil(innerHeight / PX);
+        canvas.width = W; canvas.height = H;
+        if (effect && effect.resize) effect.resize();
+      }
+      function measure() { rects = cards.map(c => c.getBoundingClientRect()); }
+
+      // distance from point to rect (0 inside)
+      function rdist(r, x, y) {
+        const dx = Math.max(r.left - x, 0, x - r.right), dy = Math.max(r.top - y, 0, y - r.bottom);
+        return Math.hypot(dx, dy);
+      }
+      // nearest card accent to a CSS-pixel point, blended toward the site accent with distance
+      function tintAt(x, y) {
+        let best = 1e9, bi = -1;
+        for (let i = 0; i < rects.length; i++) { const d = rdist(rects[i], x, y); if (d < best) { best = d; bi = i; } }
+        return bi < 0 || best > 220 ? SITE() : accents[bi];
+      }
+
+      function setCard(i, o) {
+        const s = cards[i].style;
+        for (const k in o) s.setProperty('--' + k, o[k]);
+      }
+      // shared: spotlight follows the pointer
+      function spotlight() {
+        for (let i = 0; i < cards.length; i++) {
+          const r = rects[i];
+          const d = mouse.on ? rdist(r, mouse.x, mouse.y) : 1e9;
+          setCard(i, { mx: (mouse.x - r.left) + 'px', my: (mouse.y - r.top) + 'px', prox: Math.max(0, 1 - d / 160).toFixed(3) });
+        }
+      }
+      function resetCards() {
+        cards.forEach(c => { c.style.transform = ''; });
+        cards.forEach((c, i) => setCard(i, { heat: 0, rx: '0deg', ry: '0deg', tx: '0px', ty: '0px', prox: 0 }));
+      }
+
+      // ── 1. Synth grid: a perspective-free grid that sags toward the pointer
+      //       like a gravity well; nearby cards tilt toward it.
+      const grid = {
+        label: 'Gravity grid',
+        draw(t) {
+          ctx.clearRect(0, 0, W, H);
+          const step = 16, R = 70, mx = mouse.sx / PX, my = mouse.sy / PX, off = (t * 4) % step;
+          const cr = rects.map((r, i) => [r.left / PX, r.top / PX, r.right / PX, r.bottom / PX, i]).filter(c => c[3] > -30 && c[1] < H + 30);
+          const warp = (x, y) => {
+            const dx = mx - x, dy = my - y, d2 = dx * dx + dy * dy, k = Math.exp(-d2 / (R * R)) * 0.55;
+            let X = x + dx * k, Y = y + dy * k, kc = 0, ci = -1;
+            for (const c of cr) {   // each card pulls the grid toward its edge a little
+              const ex = Math.max(c[0], Math.min(x, c[2])) - x, ey = Math.max(c[1], Math.min(y, c[3])) - y, e2 = ex * ex + ey * ey;
+              if (e2 > 900) continue;
+              const kk = Math.exp(-e2 / 90) * 0.3;
+              X += ex * kk; Y += ey * kk;
+              if (kk > kc) { kc = kk; ci = c[4]; }
+            }
+            return [X, Y, k, kc, ci];
+          };
+          ctx.lineWidth = 1;
+          const lines = [];
+          for (let y = -step + off; y < H + step; y += step) lines.push([0, y, 1]);
+          for (let x = -step + (off * 0.5) % step; x < W + step; x += step) lines.push([x, 0, 0]);
+          const tint = tintAt(mouse.sx, mouse.sy), hot = [];
+          ctx.strokeStyle = ink(0.07);
+          ctx.beginPath();
+          for (const [lx, ly, horiz] of lines) {
+            let prev = null;
+            for (let s = 0; s <= (horiz ? W : H) + 4; s += 4) {
+              const p = horiz ? warp(s, ly) : warp(lx, s);
+              if (prev) {
+                if (p[2] > 0.03) hot.push([prev[0], prev[1], p[0], p[1], Math.min(0.5, p[2] * 0.9), tint]);
+                else if (p[3] > 0.04) hot.push([prev[0], prev[1], p[0], p[1], Math.min(0.45, p[3] * 1.6), accents[p[4]]]);
+                ctx.lineTo(p[0], p[1]);
+              }
+              else ctx.moveTo(p[0], p[1]);
+              prev = p;
+            }
+          }
+          ctx.stroke();
+          for (const [x0, y0, x1, y1, a, c] of hot) {
+            ctx.strokeStyle = rgba(c, a);
+            ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1, y1); ctx.stroke();
+          }
+        },
+        cards() {
+          for (let i = 0; i < cards.length; i++) {
+            const r = rects[i], cx = (r.left + r.right) / 2, cy = (r.top + r.bottom) / 2;
+            const d = mouse.on ? rdist(r, mouse.sx, mouse.sy) : 1e9, k = Math.max(0, 1 - d / 260);
+            const nx = Math.max(-1, Math.min(1, (mouse.sx - cx) / (r.width / 2)));
+            const ny = Math.max(-1, Math.min(1, (mouse.sy - cy) / (r.height / 2)));
+            const kk = Math.max(0, 1 - d / 90);
+            cards[i].style.transform = kk > 0.01
+              ? `perspective(900px) translateY(${cards[i].matches(':hover') ? -2 : 0}px) rotateX(${(-ny * 2.5 * kk).toFixed(2)}deg) rotateY(${(nx * 2.5 * kk).toFixed(2)}deg)`
+              : '';
+            setCard(i, { heat: (k * 0.45).toFixed(3) });
+          }
+        }
+      };
+
+      // ── 2. LED matrix: a field of dots that the pointer pushes aside; dots
+      //       light up as they're disturbed; cards glow as the pointer nears.
+      const dots = {
+        label: 'LED matrix',
+        pts: null,
+        resize() {
+          const g = 8; this.pts = [];
+          for (let y = g / 2; y < H; y += g) for (let x = g / 2; x < W; x += g) this.pts.push({ x0: x, y0: y, x, y, vx: 0, vy: 0 });
+        },
+        draw(t, dt) {
+          if (!this.pts) this.resize();
+          ctx.clearRect(0, 0, W, H);
+          const mx = mouse.sx / PX, my = mouse.sy / PX, R = 34, c = tintAt(mouse.sx, mouse.sy);
+          const ring = ringMap(2, 36), dk = isDark();
+          for (const p of this.pts) {
+            const own = ring.m[(p.y0 / 2 | 0) * ring.cw + (p.x0 / 2 | 0)];
+            if (own < 0) continue;
+            const dx = p.x - mx, dy = p.y - my, d2 = dx * dx + dy * dy;
+            if (d2 < R * R && mouse.on) { const d = Math.sqrt(d2) || 1, f = (1 - d / R) * 900; p.vx += dx / d * f * dt; p.vy += dy / d * f * dt; }
+            p.vx += (p.x0 - p.x) * 40 * dt; p.vy += (p.y0 - p.y) * 40 * dt;
+            p.vx *= Math.pow(0.02, dt); p.vy *= Math.pow(0.02, dt);
+            p.x += p.vx * dt; p.y += p.vy * dt;
+            const disp = Math.min(1, Math.hypot(p.x - p.x0, p.y - p.y0) / 6);
+            const tw = 0.5 + 0.5 * Math.sin(t * 1.3 + p.x0 * 0.21 + p.y0 * 0.17);
+            if (disp > 0.05) { ctx.fillStyle = rgba(c, 0.25 + disp * 0.6); ctx.fillRect(p.x - 1, p.y - 1, 2, 2); }
+            else if (own > 0) { ctx.fillStyle = rgba(accents[own - 1], (dk ? 0.22 : 0.3) + tw * 0.18); ctx.fillRect(p.x | 0, p.y | 0, 1, 1); }
+            else { ctx.fillStyle = ink(0.09 + tw * 0.07); ctx.fillRect(p.x | 0, p.y | 0, 1, 1); }
+          }
+        },
+        cards() {
+          for (let i = 0; i < cards.length; i++) {
+            const d = mouse.on ? rdist(rects[i], mouse.sx, mouse.sy) : 1e9;
+            setCard(i, { heat: Math.max(0, 1 - d / 120).toFixed(3) });
+          }
+        }
+      };
+
+      // ── 3. Game of Life: the pointer sows cells as it moves; colonies grow,
+      //       crash into the cards and light up their edges.
+      const life = {
+        label: 'Game of Life',
+        cs: 2, cols: 0, rows: 0, a: null, b: null, age: null, own: null, acc: 0,
+        resize() {
+          this.cols = Math.ceil(W / this.cs); this.rows = Math.ceil(H / this.cs);
+          const n = this.cols * this.rows;
+          this.a = new Uint8Array(n); this.b = new Uint8Array(n); this.age = new Float32Array(n); this.own = new Float32Array(n);
+          for (let i = 0; i < n; i++) if (Math.random() < 0.08) this.a[i] = 1;
+        },
+        sow(x, y, n, mine) {
+          const cx = (x / PX / this.cs) | 0, cy = (y / PX / this.cs) | 0;
+          for (let k = 0; k < n; k++) {
+            const i = cx + ((Math.random() * 7 - 3) | 0), j = cy + ((Math.random() * 7 - 3) | 0);
+            if (i >= 0 && j >= 0 && i < this.cols && j < this.rows) { const k = j * this.cols + i; this.a[k] = 1; this.age[k] = 0; if (mine) this.own[k] = 1.5; }
+          }
+        },
+        step() {
+          const { cols, rows, a, b } = this;
+          for (let y = 0; y < rows; y++) {
+            const ym = ((y + rows - 1) % rows) * cols, y0 = y * cols, yp = ((y + 1) % rows) * cols;
+            for (let x = 0; x < cols; x++) {
+              const xm = (x + cols - 1) % cols, xp = (x + 1) % cols;
+              const n = a[ym + xm] + a[ym + x] + a[ym + xp] + a[y0 + xm] + a[y0 + xp] + a[yp + xm] + a[yp + x] + a[yp + xp];
+              const i = y0 + x;
+              b[i] = n === 3 || (n === 2 && a[i]) ? 1 : 0;
+              if (b[i] && !a[i]) { this.age[i] = 0; const o = this.own; o[i] = Math.max(o[ym + x], o[yp + x], o[y0 + xm], o[y0 + xp]) * 0.8; }
+            }
+          }
+          const ring = ringMap(this.cs, 10);
+          for (let i = 0; i < b.length; i++) if (ring.m[i] < 0) b[i] = 0;
+          this.a = b; this.b = a;
+          // keep it from dying out: a few random sparks
+          for (let k = 0; k < 3; k++) this.sow(Math.random() * innerWidth, Math.random() * innerHeight, 8);
+        },
+        draw(t, dt) {
+          if (!this.a) this.resize();
+          if (mouse.on) { const sp = Math.hypot(mouse.vx, mouse.vy); if (sp > 20) this.sow(mouse.x, mouse.y, Math.min(14, sp / 60 | 0) + 2, true); }
+          this.acc += dt;
+          if (this.acc > 1 / 12 && !reduce) { this.acc = 0; this.step(); }
+          pbuf();
+          const { cols, rows, a, age, own, cs } = this, base = pcol(INK(), isDark() ? 0.09 : 0.08), site = SITE(), fresh = [];
+          for (let k = 0; k < 8; k++) fresh.push(pcol(site, 0.7 - k * 0.07));
+          const ring = ringMap(cs, 10), edge = accents.map(c => pcol(c, isDark() ? 0.55 : 0.5));
+          for (let y = 0; y < rows; y++) for (let x = 0; x < cols; x++) {
+            const i = y * cols + x;
+            if (!a[i]) continue;
+            age[i] += dt;
+            own[i] = Math.max(0, own[i] - dt * 0.25);
+            const rg = ring.m[i];
+            prect(x * cs, y * cs, cs, cs, rg > 0 ? edge[rg - 1] : own[i] > 0.15 ? fresh[Math.min(7, (1.5 - Math.min(1.5, own[i])) * 5 | 0)] : base);
+          }
+          ctx.putImageData(img, 0, 0);
+        },
+        cards() {
+          // heat = live cells in a 12px ring around each card
+          const { cols, rows, a, cs } = this, q = PX * cs;
+          for (let i = 0; i < cards.length; i++) {
+            const r = rects[i];
+            if (r.bottom < 0 || r.top > innerHeight) { setCard(i, { heat: 0 }); continue; }
+            let n = 0, tot = 0;
+            const x0 = Math.max(0, ((r.left - 12) / q) | 0), x1 = Math.min(cols - 1, ((r.right + 12) / q) | 0);
+            const y0 = Math.max(0, ((r.top - 12) / q) | 0), y1 = Math.min(rows - 1, ((r.bottom + 12) / q) | 0);
+            const ix0 = (r.left / q) | 0, ix1 = (r.right / q) | 0, iy0 = (r.top / q) | 0, iy1 = (r.bottom / q) | 0;
+            for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) {
+              if (x > ix0 && x < ix1 && y > iy0 && y < iy1) continue;
+              tot++; n += a[y * cols + x];
+            }
+            const prev = parseFloat(cards[i].style.getPropertyValue('--heat')) || 0;
+            const target = Math.min(1, (n / Math.max(1, tot)) * 9);
+            setCard(i, { heat: (prev + (target - prev) * 0.15).toFixed(3) });
+          }
+        }
+      };
+
+      // ── 4. Warp: a starfield whose vanishing point chases the pointer;
+      //       cards drift in parallax against it.
+      const stars = {
+        label: 'Warp field',
+        s: null, vx: 0, vy: 0,
+        resize() { this.s = Array.from({ length: 420 }, () => this.spawn({})); },
+        spawn(o) { o.x = (Math.random() - 0.5) * 2; o.y = (Math.random() - 0.5) * 2; o.z = Math.random() * 0.9 + 0.1; o.pz = o.z; return o; },
+        draw(t, dt) {
+          if (!this.s) this.resize();
+          const tx = mouse.on ? mouse.sx / PX : W / 2, ty = mouse.on ? mouse.sy / PX : H / 2;
+          this.vx += (tx - this.vx) * Math.min(1, dt * 3); this.vy += (ty - this.vy) * Math.min(1, dt * 3);
+          ctx.clearRect(0, 0, W, H);
+          const sp = reduce ? 0 : 0.34, sc = Math.max(W, H) * 0.5, c = tintAt(this.vx * PX, this.vy * PX);
+          for (const p of this.s) {
+            p.pz = p.z; p.z -= sp * dt;
+            if (p.z <= 0.02) { this.spawn(p); p.z = p.pz = 1; continue; }
+            const x = this.vx + p.x / p.z * sc, y = this.vy + p.y / p.z * sc;
+            const px = this.vx + p.x / p.pz * sc, py = this.vy + p.y / p.pz * sc;
+            if (x < -10 || y < -10 || x > W + 10 || y > H + 10) { this.spawn(p); p.z = p.pz = 1; continue; }
+            const b = 1 - p.z;
+            let ci = -1;
+            for (let i = 0; i < rects.length && ci < 0; i++) if (rdist(rects[i], x * PX, y * PX) < 26) ci = i;
+            ctx.strokeStyle = ci >= 0 ? rgba(accents[ci], 0.35 + b * 0.55) : b > 0.6 ? rgba(c, 0.25 + b * 0.6) : ink(0.08 + b * 0.5);
+            ctx.lineWidth = b > 0.85 ? 2 : 1;
+            ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(x, y); ctx.stroke();
+          }
+        },
+        cards() {
+          const nx = mouse.on ? (mouse.sx / innerWidth - 0.5) : 0, ny = mouse.on ? (mouse.sy / innerHeight - 0.5) : 0;
+          for (let i = 0; i < cards.length; i++) {
+            const depth = 4 + (i % 3) * 3;               // a little depth variety
+            const d = mouse.on ? rdist(rects[i], mouse.sx, mouse.sy) : 1e9;
+            setCard(i, { tx: Math.round(-nx * depth) + 'px', ty: Math.round(-ny * depth) + 'px', heat: (Math.max(0, 1 - d / 140) * 0.8).toFixed(3) });
+          }
+        }
+      };
+
+      // ── 5. Phosphor: the pointer leaves a dithered CRT afterglow; cards
+      //       pick up the glow wherever the trail touches their edges.
+      const BAYER = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5].map(v => (v + 0.5) / 16);
+      const trail = {
+        label: 'Phosphor trail',
+        buf: null, cw: 0, ch: 0, cs: 2, img: null,
+        resize() { this.cw = Math.ceil(W / this.cs); this.ch = Math.ceil(H / this.cs); this.buf = new Float32Array(this.cw * this.ch); },
+        splat(x, y, r, v) {
+          const cx = x / PX / this.cs, cy = y / PX / this.cs;
+          for (let j = Math.max(0, cy - r | 0); j <= Math.min(this.ch - 1, cy + r | 0); j++)
+            for (let i = Math.max(0, cx - r | 0); i <= Math.min(this.cw - 1, cx + r | 0); i++) {
+              const d = Math.hypot(i - cx, j - cy) / r; if (d < 1) { const k = j * this.cw + i; this.buf[k] = Math.min(1, this.buf[k] + v * (1 - d * d)); }
+            }
+        },
+        draw(t, dt) {
+          if (!this.buf) this.resize();
+          if (mouse.on && Math.hypot(mouse.vx, mouse.vy) > 30) {
+            const steps = Math.min(24, Math.ceil(Math.hypot(mouse.vx, mouse.vy) * dt / 4) + 1);
+            for (let s = 0; s < steps; s++) this.splat(mouse.x - mouse.vx * dt * s / steps, mouse.y - mouse.vy * dt * s / steps, 6, 0.22);
+          }
+          const decay = Math.pow(0.35, dt), { buf, cw, ch, cs } = this;
+          pbuf();
+          const dk = isDark(), cHot = pcol(SITE(), dk ? 0.8 : 0.85), cWarm = pcol([219, 39, 119], dk ? 0.6 : 0.7), cCool = pcol(INK(), dk ? 0.22 : 0.28);
+          const ring = ringMap(cs, 60), kHot = accents.map(c => pcol(c, dk ? 0.85 : 0.85)), kWarm = accents.map(c => pcol(c, dk ? 0.5 : 0.55));
+          for (let j = 0; j < ch; j++) for (let i = 0; i < cw; i++) {
+            const k = j * cw + i, v = buf[k] *= decay;
+            if (v < 0.02) continue;
+            const rg = ring.m[k];
+            if (v > BAYER[(j & 3) * 4 + (i & 3)]) prect(i * cs, j * cs, cs, cs, rg > 0 ? (v > 0.45 ? kHot[rg - 1] : v > 0.2 ? kWarm[rg - 1] : cCool) : v > 0.6 ? cHot : v > 0.3 ? cWarm : cCool);
+          }
+          ctx.putImageData(img, 0, 0);
+        },
+        cards() {
+          const { buf, cw, ch, cs } = this, q = PX * cs;
+          for (let i = 0; i < cards.length; i++) {
+            const r = rects[i];
+            if (r.bottom < 0 || r.top > innerHeight) { setCard(i, { heat: 0 }); continue; }
+            let m = 0;
+            const sample = (x, y) => { const a = (x / q) | 0, b = (y / q) | 0; if (a >= 0 && b >= 0 && a < cw && b < ch) m = Math.max(m, buf[b * cw + a]); };
+            for (let x = r.left; x <= r.right; x += q * 2) { sample(x, r.top - 4); sample(x, r.bottom + 4); }
+            for (let y = r.top; y <= r.bottom; y += q * 2) { sample(r.left - 4, y); sample(r.right + 4, y); }
+            setCard(i, { heat: Math.min(1, m * 1.4).toFixed(3) });
+          }
+        }
+      };
+
+
+      // ── shared helpers for the effects below ──────────────────────
+      // Per-card impulses: heat that cools off and a nudge that springs back.
+      const HEAT = new Float32Array(cards.length), KX = new Float32Array(cards.length), KY = new Float32Array(cards.length);
+      function hit(i, v, kx = 0, ky = 0) {
+        HEAT[i] = Math.min(1, Math.max(HEAT[i], v));
+        KX[i] = Math.max(-6, Math.min(6, KX[i] + kx)); KY[i] = Math.max(-6, Math.min(6, KY[i] + ky));
+      }
+      function flush(dt, cool = 0.06) {
+        const c = Math.pow(cool, dt), s = Math.pow(0.004, dt);
+        for (let i = 0; i < cards.length; i++) {
+          HEAT[i] *= c; KX[i] *= s; KY[i] *= s;
+          setCard(i, { heat: HEAT[i].toFixed(3), tx: Math.round(KX[i]) + 'px', ty: Math.round(KY[i]) + 'px' });
+        }
+      }
+      function clearImpulses() { HEAT.fill(0); KX.fill(0); KY.fill(0); }
+      // which card (if any) contains a CSS-pixel point
+      function cardAt(x, y) {
+        for (let i = 0; i < rects.length; i++) { const r = rects[i]; if (x >= r.left && x <= r.right && y >= r.top && y <= r.bottom) return i; }
+        return -1;
+      }
+      const onScreen = r => r.bottom > 0 && r.top < innerHeight;
+      // largest value of f(x, y) just outside a card's edges (CSS pixels)
+      function edgeMax(r, f, step = 12, out = 5) {
+        let m = 0;
+        for (let x = r.left; x <= r.right; x += step) { m = Math.max(m, f(x, r.top - out), f(x, r.bottom + out)); }
+        for (let y = r.top; y <= r.bottom; y += step) { m = Math.max(m, f(r.left - out, y), f(r.right + out, y)); }
+        return m;
+      }
+      // a coarse cell grid over the canvas, for the per-cell effects
+      function cells(cs) { return { cs, cw: Math.ceil(W / cs), ch: Math.ceil(H / cs) }; }
+      const mix = (a, b, k) => [a[0] + (b[0] - a[0]) * k | 0, a[1] + (b[1] - a[1]) * k | 0, a[2] + (b[2] - a[2]) * k | 0];
+      const PINK = [219, 39, 119], CYAN = [34, 211, 238], PURPLE = [139, 92, 246], AMBER = [245, 158, 11], GREEN = [34, 197, 94];
+
+      // ── 6. Plasma: an old-school demoscene plasma in a few banded shades,
+      //       with a ring that radiates from the pointer; cards light up where
+      //       the bright bands reach them.
+      const plasma = {
+        label: 'Demo plasma',
+        g: null,
+        val(x, y, t) {   // x, y in canvas pixels
+          const mx = mouse.sx / PX, my = mouse.sy / PX;
+          const d = Math.hypot(x - mx, y - my);
+          return (Math.sin(x * 0.045 + t * 0.9) + Math.sin(y * 0.06 - t * 1.1) + Math.sin((x + y) * 0.03 + t * 0.6) + Math.sin(d * 0.11 - t * 2.6) * (mouse.on ? 1.4 : 0.6)) / 4.4;
+        },
+        draw(t) {
+          const g = this.g = cells(3); pbuf();
+          const dk = isDark(), pal = [];
+          for (let k = 0; k < 6; k++) { const c = k < 3 ? mix(PURPLE, PINK, k / 2) : mix(PINK, CYAN, (k - 3) / 2); pal.push(pcol(c, (dk ? 0.05 : 0.05) + k * (dk ? 0.035 : 0.028))); }
+          const ring = ringMap(g.cs, 70), cpal = accents.map(c => [0, 1, 2, 3, 4, 5].map(k => pcol(c, (dk ? 0.06 : 0.06) + k * (dk ? 0.04 : 0.032))));
+          for (let j = 0; j < g.ch; j++) for (let i = 0; i < g.cw; i++) {
+            const v = this.val(i * g.cs, j * g.cs, t);
+            if (v < 0.05) continue;
+            const rg = ring.m[j * g.cw + i], band = Math.min(5, (v - 0.05) / 0.75 * 6 | 0);
+            if (rg < 0) continue;
+            prect(i * g.cs, j * g.cs, g.cs, g.cs, rg > 0 ? cpal[rg - 1][band] : pal[band]);
+          }
+          ctx.putImageData(img, 0, 0);
+          this.t = t;
+        },
+        cards() {
+          for (let i = 0; i < cards.length; i++) {
+            const r = rects[i];
+            if (!onScreen(r)) { setCard(i, { heat: 0 }); continue; }
+            const m = edgeMax(r, (x, y) => this.val(x / PX, y / PX, this.t), 24);
+            setCard(i, { heat: Math.max(0, (m - 0.55) * 1.6).toFixed(3) });
+          }
+        }
+      };
+
+      // ── 7. Rain code: columns of falling glyphs; columns near the pointer
+      //       run faster and hotter; cards catch the drops on their top edges.
+      const GLYPHS = Array.from({ length: 48 }, () => { const g = []; for (let k = 0; k < 15; k++) g.push(Math.random() < 0.45 ? 1 : 0); return g; });
+      const rain = {
+        label: 'Code rain',
+        cols: null, gw: 4, gh: 6, spl: [],
+        resize() {
+          this.cols = [];
+          for (let x = 0; x < W; x += this.gw) this.cols.push({ x, y: Math.random() * H, v: 6 + Math.random() * 10, len: 6 + (Math.random() * 14 | 0), seed: Math.random() * 1000 | 0, hot: 0 });
+        },
+        draw(t, dt) {
+          if (!this.cols) this.resize();
+          pbuf();
+          const dk = isDark(), mx = mouse.sx / PX, my = mouse.sy / PX, tint = tintAt(mouse.sx, mouse.sy), base = INK(), gw = this.gw, gh = this.gh;
+          for (const c of this.cols) {
+            const near = mouse.on ? Math.max(0, 1 - Math.abs(c.x - mx) / 28) * Math.max(0, 1 - Math.abs(c.y - my) / 120) : 0;
+            c.hot += (near - c.hot) * Math.min(1, dt * 4);
+            c.y += c.v * (1 + c.hot * 3) * dt * (reduce ? 0 : 1);
+            if (c.y - c.len * gh > H) { c.y = -Math.random() * 40; c.len = 6 + (Math.random() * 14 | 0); c.v = 6 + Math.random() * 10; }
+            // drops land on cards
+            const head = cardAt(c.x * PX, c.y * PX);
+            if (head >= 0 && c.y * PX - rects[head].top < 10) {
+              hit(head, 0.35 + c.hot * 0.4, 0, 0.3);
+              for (let k = 0; k < 2; k++) this.spl.push({ x: c.x + 1, y: rects[head].top / PX - 1, vx: (Math.random() - 0.5) * 50, vy: -20 - Math.random() * 30, life: 0.5, c: accents[head] });
+              c.y = -Math.random() * 40; c.len = 6 + (Math.random() * 14 | 0);   // the drop is spent
+            }
+            for (let k = 0; k < c.len; k++) {
+              const gy = Math.floor(c.y / gh) - k; if (gy < 0) break;
+              const py = gy * gh; if (py >= H) continue;
+              const fade = 1 - k / c.len, glyph = GLYPHS[(c.seed + gy * 7 + (k === 0 ? (t * 12 | 0) : 0)) % GLYPHS.length];
+              const col = k === 0 ? (c.hot > 0.15 ? mix(tint, [255, 255, 255], 0.3) : base) : (c.hot > 0.15 ? tint : base);
+              const v = pcol(col, (dk ? 0.07 : 0.06) + fade * (k === 0 ? 0.35 : 0.14) + c.hot * fade * 0.4);
+              for (let b = 0; b < 15; b++) if (glyph[b]) { const xx = c.x + (b % 3), yy = py + (b / 3 | 0); if (yy >= 0 && yy < H && xx < W) pix[yy * W + xx] = v; }
+            }
+          }
+          ctx.putImageData(img, 0, 0);
+          this.spl = this.spl.filter(p => (p.life -= dt) > 0);
+          for (const p of this.spl) { p.vy += 140 * dt; p.x += p.vx * dt; p.y += p.vy * dt; ctx.fillStyle = rgba(p.c, p.life * (dk ? 1.4 : 1.3)); ctx.fillRect(p.x | 0, p.y | 0, 1, 1); }
+        },
+        cards(dt) { flush(dt, 0.1); }
+      };
+
+      // ── 8. Doom fire: the PSX-Doom fire algorithm smouldering along the
+      //       bottom, with a torch under the pointer; cards heat up from below.
+      const fire = {
+        label: 'Doom fire',
+        g: null, b: null,
+        resize() { this.g = cells(2); this.b = new Uint8Array(this.g.cw * this.g.ch); },
+        draw(t, dt) {
+          if (!this.b) this.resize();
+          const { cw, ch, cs } = this.g, b = this.b;
+          for (let i = 0; i < cw; i++) b[(ch - 1) * cw + i] = Math.random() < 0.5 ? 10 + (Math.random() * 10 | 0) : 0;
+          const lit = mouse.on ? cardAt(mouse.x, mouse.y) : -1;
+          if (lit >= 0) {
+            const r = rects[lit], q = PX * cs, y = (r.top / q | 0) - 1;
+            if (y > 0 && y < ch) for (let x = Math.max(0, r.left / q | 0); x <= Math.min(cw - 1, r.right / q | 0); x++) if (Math.random() < 0.6) b[y * cw + x] = 14 + (Math.random() * 16 | 0);
+          } else if (mouse.on) {
+            const px = mouse.sx / PX / cs | 0, py = mouse.sy / PX / cs | 0;
+            for (let k = -3; k <= 3; k++) { const x = px + k, y = py + 3; if (x >= 0 && x < cw && y >= 0 && y < ch && Math.random() < 0.7) b[y * cw + x] = 30 - Math.abs(k) * 4 + (Math.random() * 6 | 0); }
+          }
+          if (!reduce) for (let x = 0; x < cw; x++) for (let y = 1; y < ch; y++) {
+            const src = y * cw + x, v = b[src];
+            if (!v) { b[src - cw] = 0; continue; }
+            const r = Math.random() * 3.5 | 0, dst = src - r + 1 - cw;
+            if (dst >= 0) b[dst] = Math.max(0, v - (r & 1) - (Math.random() < 0.3 ? 1 : 0));
+          }
+          pbuf();
+          const dk = isDark(), A = dk ? 0.55 : 0.45;
+          const pal = [];
+          for (let k = 0; k <= 36; k++) {
+            const u = k / 36, c = u < 0.35 ? mix([90, 10, 20], [210, 40, 40], u / 0.35) : u < 0.7 ? mix([210, 40, 40], [245, 158, 11], (u - 0.35) / 0.35) : mix([245, 158, 11], [255, 240, 200], (u - 0.7) / 0.3);
+            pal.push(pcol(c, A * Math.min(1, u * 1.8)));
+          }
+          for (let y = 0; y < ch; y++) for (let x = 0; x < cw; x++) { const v = b[y * cw + x]; if (v > 1) prect(x * cs, y * cs, cs, cs, pal[v]); }
+          ctx.putImageData(img, 0, 0);
+        },
+        cards() {
+          const { cw, ch, cs } = this.g, q = PX * cs;
+          for (let i = 0; i < cards.length; i++) {
+            const r = rects[i];
+            if (!onScreen(r)) { setCard(i, { heat: 0 }); continue; }
+            let m = 0;
+            for (let x = r.left; x <= r.right; x += q * 2) {
+              const a = x / q | 0, bb = (r.bottom + 4) / q | 0;
+              if (a >= 0 && a < cw && bb >= 0 && bb < ch) m = Math.max(m, this.b[bb * cw + a]);
+            }
+            setCard(i, { heat: Math.min(1, m / 26).toFixed(3) });
+          }
+        }
+      };
+
+      // ── 9. Ripple pool: the classic two-buffer water ripple; the pointer
+      //       stirs it, the cards are walls the waves bounce off, and they bob
+      //       when a wave slaps their edge.
+      const pool = {
+        label: 'Ripple pool',
+        g: null, a: null, b: null, wall: null, acc: 0,
+        resize() { this.g = cells(2); const n = this.g.cw * this.g.ch; this.a = new Float32Array(n); this.b = new Float32Array(n); this.wall = new Uint8Array(n); },
+        drop(x, y, s) {
+          const { cw, ch, cs } = this.g, cx = x / PX / cs | 0, cy = y / PX / cs | 0;
+          for (let j = -2; j <= 2; j++) for (let i = -2; i <= 2; i++) { const xx = cx + i, yy = cy + j; if (xx > 0 && yy > 0 && xx < cw - 1 && yy < ch - 1) this.a[yy * cw + xx] += s * (1 - (i * i + j * j) / 9); }
+        },
+        draw(t, dt) {
+          if (!this.a) this.resize();
+          const { cw, ch, cs } = this.g, q = PX * cs;
+          this.wall.fill(0);
+          for (const r of rects) {
+            if (!onScreen(r)) continue;
+            const x0 = Math.max(0, r.left / q | 0), x1 = Math.min(cw - 1, r.right / q | 0), y0 = Math.max(0, r.top / q | 0), y1 = Math.min(ch - 1, r.bottom / q | 0);
+            for (let y = y0; y <= y1; y++) this.wall.fill(1, y * cw + x0, y * cw + x1 + 1);
+          }
+          if (mouse.on && Math.hypot(mouse.vx, mouse.vy) > 40) this.drop(mouse.x, mouse.y, 1.8);
+          if (Math.random() < dt * 0.35) this.drop(Math.random() * innerWidth, Math.random() * innerHeight, 2);
+          this.acc += dt;
+          let steps = 0;
+          while (this.acc > 1 / 50 && steps < 3 && !reduce) {
+            this.acc -= 1 / 50; steps++;
+            const { a, b, wall } = this;
+            for (let y = 1; y < ch - 1; y++) for (let x = 1; x < cw - 1; x++) {
+              const i = y * cw + x;
+              if (wall[i]) { b[i] = 0; continue; }
+              b[i] = ((a[i - 1] + a[i + 1] + a[i - cw] + a[i + cw]) / 2 - b[i]) * 0.96;
+            }
+            this.a = b; this.b = a;
+          }
+          pbuf();
+          const dk = isDark(), hiC = pcol(dk ? [200, 230, 255] : [29, 78, 216], dk ? 0.28 : 0.22), loC = pcol(dk ? [0, 0, 0] : [24, 23, 15], dk ? 0.35 : 0.10), a = this.a;
+          for (let y = 1; y < ch - 1; y++) for (let x = 1; x < cw - 1; x++) {
+            const i = y * cw + x, s = (a[i - 1] - a[i + 1]) + (a[i - cw] - a[i + cw]);
+            if (s > 0.25) prect(x * cs, y * cs, cs, cs, hiC); else if (s < -0.25) prect(x * cs, y * cs, cs, cs, loC);
+          }
+          ctx.putImageData(img, 0, 0);
+        },
+        cards(dt) {
+          const { cw, ch, cs } = this.g, q = PX * cs, a = this.a;
+          const amp = (x, y) => { const i = x / q | 0, j = y / q | 0; return i > 0 && j > 0 && i < cw && j < ch ? Math.abs(a[j * cw + i]) : 0; };
+          for (let i = 0; i < cards.length; i++) {
+            const r = rects[i];
+            if (!onScreen(r)) continue;
+            const m = edgeMax(r, amp, 18, q + 1);
+            if (m > 0.3) hit(i, Math.min(1, m / 1.5), 0, (Math.random() - 0.5) * m * 1.5);
+          }
+          flush(dt, 0.15);
+        }
+      };
+
+      // ── 10. Flock: pixel birds that flock (boids), follow the pointer and
+      //        steer around the cards; cards glow while birds skim past.
+      const flock = {
+        label: 'Pixel flock',
+        b: null,
+        resize() { this.b = Array.from({ length: 110 }, () => ({ x: Math.random() * W, y: Math.random() * H, vx: Math.random() * 40 - 20, vy: Math.random() * 40 - 20 })); },
+        draw(t, dt) {
+          if (!this.b) this.resize();
+          const B = this.b, mx = mouse.sx / PX, my = mouse.sy / PX;
+          if (!reduce) for (const p of B) {
+            let ax = 0, ay = 0, cx = 0, cy = 0, vx = 0, vy = 0, n = 0;
+            for (const o of B) {
+              if (o === p) continue;
+              const dx = o.x - p.x, dy = o.y - p.y, d2 = dx * dx + dy * dy;
+              if (d2 < 900) { n++; cx += o.x; cy += o.y; vx += o.vx; vy += o.vy; if (d2 < 36) { ax -= dx / (d2 + 1) * 60; ay -= dy / (d2 + 1) * 60; } }
+            }
+            if (n) { ax += (cx / n - p.x) * 0.8 + (vx / n - p.vx) * 1.2; ay += (cy / n - p.y) * 0.8 + (vy / n - p.vy) * 1.2; }
+            if (mouse.on) { const dx = mx - p.x, dy = my - p.y, d = Math.hypot(dx, dy) + 1; if (d < 140) { ax += dx / d * 60; ay += dy / d * 60; } if (d < 10) { ax -= dx / d * 200; ay -= dy / d * 200; } }
+            // steer around the cards
+            for (const r of rects) {
+              const l = r.left / PX - 6, rr = r.right / PX + 6, tp = r.top / PX - 6, bt = r.bottom / PX + 6;
+              if (p.x > l && p.x < rr && p.y > tp && p.y < bt) {
+                const dl = p.x - l, dr = rr - p.x, dt2 = p.y - tp, db = bt - p.y, m = Math.min(dl, dr, dt2, db);
+                if (m === dl) ax -= 400; else if (m === dr) ax += 400; else if (m === dt2) ay -= 400; else ay += 400;
+              }
+            }
+            p.vx += ax * dt; p.vy += ay * dt;
+            const sp = Math.hypot(p.vx, p.vy), mxs = 70, mns = 25;
+            if (sp > mxs) { p.vx *= mxs / sp; p.vy *= mxs / sp; } else if (sp < mns) { p.vx *= mns / (sp + 0.01); p.vy *= mns / (sp + 0.01); }
+            p.x += p.vx * dt; p.y += p.vy * dt;
+            if (p.x < -4) p.x = W + 4; if (p.x > W + 4) p.x = -4; if (p.y < -4) p.y = H + 4; if (p.y > H + 4) p.y = -4;
+          }
+          ctx.clearRect(0, 0, W, H);
+          const dk = isDark();
+          for (const p of B) {
+            const sp = Math.hypot(p.vx, p.vy) || 1, ux = p.vx / sp, uy = p.vy / sp;
+            const c = tintAt(p.x * PX, p.y * PX);
+            ctx.fillStyle = rgba(c, dk ? 0.75 : 0.7);
+            ctx.fillRect(p.x | 0, p.y | 0, 2, 2);
+            ctx.fillStyle = ink(dk ? 0.25 : 0.2);
+            ctx.fillRect((p.x - ux * 3) | 0, (p.y - uy * 3) | 0, 1, 1);
+            ctx.fillRect((p.x - ux * 2 - uy * 1.5) | 0, (p.y - uy * 2 + ux * 1.5) | 0, 1, 1);
+            ctx.fillRect((p.x - ux * 2 + uy * 1.5) | 0, (p.y - uy * 2 - ux * 1.5) | 0, 1, 1);
+          }
+        },
+        cards(dt) {
+          for (const p of this.b) {
+            for (let i = 0; i < rects.length; i++) if (rdist(rects[i], p.x * PX, p.y * PX) < 22) hit(i, 0.45);
+          }
+          flush(dt, 0.2);
+        }
+      };
+
+      // ── 11. Pong: a few balls bounce around the page, off the cards (which
+      //        flash and get knocked) and off a paddle that follows the pointer.
+      const pong = {
+        label: 'Pong',
+        balls: null, blips: [],
+        resize() {
+          this.balls = Array.from({ length: 3 }, (_, k) => ({ x: W * (0.2 + k * 0.3), y: H * 0.3, vx: (k % 2 ? -1 : 1) * (60 + k * 12), vy: 50 + k * 10, trail: [] }));
+        },
+        draw(t, dt) {
+          if (!this.balls) this.resize();
+          const pw = 22, ph = 2, px = mouse.sx / PX - pw / 2, py = mouse.sy / PX + 8;
+          if (!reduce) for (const b of this.balls) {
+            const nx = b.x + b.vx * dt, ny = b.y + b.vy * dt;
+            if (nx < 1 || nx > W - 3) b.vx = -b.vx;
+            if (ny < 1 || ny > H - 3) b.vy = -b.vy;
+            // cards: reflect on whichever side we came through
+            const ci = cardAt(nx * PX, ny * PX);
+            if (ci >= 0 && cardAt(b.x * PX, b.y * PX) < 0) {
+              const r = rects[ci], wasX = b.x * PX < r.left || b.x * PX > r.right;
+              if (wasX) b.vx = -b.vx; else b.vy = -b.vy;
+              hit(ci, 1, wasX ? Math.sign(-b.vx) * -3 : 0, wasX ? 0 : Math.sign(-b.vy) * -3);
+              this.blips.push({ x: b.x, y: b.y, t: 0 });
+            }
+            // paddle
+            if (mouse.on && b.vy > 0 && ny >= py && b.y < py && nx > px - 2 && nx < px + pw + 2) {
+              b.vy = -Math.abs(b.vy); b.vx += ((nx - (px + pw / 2)) / (pw / 2)) * 30;
+              this.blips.push({ x: nx, y: py, t: 0 });
+            }
+            const s = Math.hypot(b.vx, b.vy); if (s > 140) { b.vx *= 140 / s; b.vy *= 140 / s; }
+            b.x += b.vx * dt; b.y += b.vy * dt;
+            b.trail.push([b.x, b.y]); if (b.trail.length > 10) b.trail.shift();
+          }
+          ctx.clearRect(0, 0, W, H);
+          const dk = isDark();
+          // dotted net down the middle, like the real thing
+          ctx.fillStyle = ink(dk ? 0.06 : 0.05);
+          for (let y = 0; y < H; y += 8) ctx.fillRect((W / 2) | 0, y, 1, 4);
+          for (const b of this.balls) {
+            b.trail.forEach(([x, y], k) => { ctx.fillStyle = ink((k / b.trail.length) * (dk ? 0.18 : 0.14)); ctx.fillRect(x | 0, y | 0, 3, 3); });
+            ctx.fillStyle = ink(dk ? 0.85 : 0.75); ctx.fillRect(b.x | 0, b.y | 0, 3, 3);
+          }
+          if (mouse.on) { ctx.fillStyle = rgba(tintAt(mouse.sx, mouse.sy), 0.75); ctx.fillRect(px | 0, py | 0, pw, ph); }
+          this.blips = this.blips.filter(p => (p.t += dt) < 0.35);
+          for (const p of this.blips) {
+            ctx.fillStyle = ink((0.35 - p.t) * (dk ? 1.6 : 1.3));
+            const r = 2 + p.t * 30;
+            for (let k = 0; k < 8; k++) { const a = k / 8 * Math.PI * 2; ctx.fillRect((p.x + Math.cos(a) * r) | 0, (p.y + Math.sin(a) * r) | 0, 1, 1); }
+          }
+        },
+        cards(dt) { flush(dt, 0.08); }
+      };
+
+      // ── 13. Metaballs: blobs of goo, one of them stuck to the pointer,
+      //        rendered as dithered pixels; cards glow where the goo touches.
+      const goo = {
+        label: 'Metaballs',
+        balls: null, g: null,
+        resize() { this.balls = Array.from({ length: 6 }, (_, k) => { const a = Math.random() * Math.PI * 2, s = 14 + Math.random() * 12; return { x: Math.random() * W, y: Math.random() * H * 0.6, vx: Math.cos(a) * s, vy: Math.sin(a) * s, r: 8 + k * 1.6 }; }); },
+        field(x, y) {   // canvas pixels
+          let f = 0;
+          for (const b of this.cur) { const dx = x - b[0], dy = y - b[1]; f += b[2] * b[2] / (dx * dx + dy * dy + 1); }
+          return f;
+        },
+        draw(t, dt) {
+          if (!this.balls) this.resize();
+          for (const b of this.balls) {
+            if (!reduce) {
+              const nx = b.x + b.vx * dt, ny = b.y + b.vy * dt, pad = b.r * 0.6;
+              if (nx < pad || nx > W - pad) b.vx = -b.vx;
+              if (ny < pad || ny > H - pad) b.vy = -b.vy;
+              for (let i = 0; i < rects.length; i++) {
+                const r = rects[i], l = r.left / PX - pad, rr = r.right / PX + pad, tp = r.top / PX - pad, bt = r.bottom / PX + pad;
+                const inNow = nx > l && nx < rr && ny > tp && ny < bt, inBefore = b.x > l && b.x < rr && b.y > tp && b.y < bt;
+                if (inNow && !inBefore) {
+                  const sideX = b.x <= l || b.x >= rr;
+                  if (sideX) b.vx = -b.vx; else b.vy = -b.vy;
+                  hit(i, 0.9, sideX ? -Math.sign(b.vx) * 3 : 0, sideX ? 0 : -Math.sign(b.vy) * 3);
+                }
+              }
+              b.x += b.vx * dt; b.y += b.vy * dt;
+            }
+          }
+          this.cur = this.balls.map(b => [b.x, b.y, b.r]);
+          if (mouse.on) this.cur.push([mouse.sx / PX, mouse.sy / PX, 13]);
+          const g = this.g = cells(2); pbuf();
+          const dk = isDark(), inC = pcol(dk ? PINK : [190, 24, 93], dk ? 0.2 : 0.12), rim = pcol(dk ? CYAN : [8, 145, 178], dk ? 0.55 : 0.45);
+          for (let j = 0; j < g.ch; j++) for (let i = 0; i < g.cw; i++) {
+            const f = this.field(i * g.cs, j * g.cs);
+            if (f < 0.7) continue;
+            if (f < 1) { if (f - 0.7 > BAYER[(j & 3) * 4 + (i & 3)] * 0.3) prect(i * g.cs, j * g.cs, g.cs, g.cs, inC); }
+            else if (f < 1.12) prect(i * g.cs, j * g.cs, g.cs, g.cs, rim);
+            else prect(i * g.cs, j * g.cs, g.cs, g.cs, inC);
+          }
+          ctx.putImageData(img, 0, 0);
+        },
+        cards() {
+          for (let i = 0; i < cards.length; i++) {
+            const r = rects[i];
+            if (!onScreen(r)) continue;
+            const m = edgeMax(r, (x, y) => this.field(x / PX, y / PX), 20);
+            hit(i, Math.min(1, Math.max(0, m - 0.6) * 1.5));
+          }
+          flush(arguments[0] || 0.016, 0.1);
+        }
+      };
+
+      // ── 14. Fireworks: rockets go up from the bottom (and wherever you
+      //        click); sparks rain down and bounce off the tops of the cards.
+      const sparks = {
+        label: 'Fireworks',
+        p: null, nextAt: 0,
+        resize() { this.p = []; },
+        burst(x, y, c) {
+          const n = 46;
+          for (let k = 0; k < n; k++) { const a = Math.random() * Math.PI * 2, s = 20 + Math.random() * 45; this.p.push({ x, y, vx: Math.cos(a) * s, vy: Math.sin(a) * s - 10, life: 1.4 + Math.random(), c, kind: 1 }); }
+        },
+        launch(x, ty, c) { this.p.push({ x, y: H + 2, vx: (Math.random() - 0.5) * 10, vy: -Math.sqrt(2 * 60 * (H - ty)), ty, c, kind: 0, life: 9 }); },
+        draw(t, dt) {
+          if (!this.p) this.resize();
+          if (t > this.nextAt && !reduce) { this.nextAt = t + 1 + Math.random() * 1.6; this.launch(W * (0.1 + Math.random() * 0.8), H * (0.15 + Math.random() * 0.35), accents[Math.random() * accents.length | 0] || PINK); }
+          if (mouse.on && Math.hypot(mouse.vx, mouse.vy) > 600 && Math.random() < 0.5) this.p.push({ x: mouse.x / PX, y: mouse.y / PX, vx: (Math.random() - 0.5) * 30, vy: -Math.random() * 20, life: 0.8, c: tintAt(mouse.x, mouse.y), kind: 1 });
+          ctx.clearRect(0, 0, W, H);
+          const dk = isDark(), keep = [];
+          for (const q of this.p) {
+            q.life -= dt;
+            q.vy += (q.kind ? 45 : 60) * dt; q.vx *= Math.pow(q.kind ? 0.5 : 1, dt);
+            const ox = q.x, oy = q.y;
+            q.x += q.vx * dt; q.y += q.vy * dt;
+            if (q.kind === 0 && (q.vy >= 0 || q.y <= q.ty)) { this.burst(q.x, q.y, q.c); continue; }
+            if (q.kind === 1 && q.vy > 0) {
+              const ci = cardAt(q.x * PX, q.y * PX);
+              if (ci >= 0 && oy * PX <= rects[ci].top + 1) { q.y = rects[ci].top / PX - 1; q.vy *= -0.45; q.vx *= 0.7; hit(ci, 0.55, 0, 0.6); }
+            }
+            if (q.life > 0 && q.y < H + 4) keep.push(q);
+            const a = Math.min(1, q.life) * (dk ? 0.85 : 0.75);
+            ctx.fillStyle = rgba(q.kind ? q.c : INK(), q.kind ? a : (dk ? 0.5 : 0.4));
+            ctx.fillRect(q.x | 0, q.y | 0, 1, 1);
+            if (q.kind === 0 || q.life > 1.2) { ctx.fillStyle = rgba(q.kind ? q.c : INK(), a * 0.4); ctx.fillRect(ox | 0, oy | 0, 1, 1); }
+          }
+          this.p = keep.length > 1600 ? keep.slice(-1600) : keep;
+        },
+        cards(dt) { flush(dt, 0.1); }
+      };
+      addEventListener('pointerdown', e => {
+        if (effect === sparks && cardAt(e.clientX, e.clientY) < 0) sparks.burst(e.clientX / PX, e.clientY / PX, tintAt(e.clientX, e.clientY));
+      });
+
+
+      // ── 15. Techbase run: a hidden-line wireframe flythrough of a small,
+      //        original 90s-shooter level. The camera follows a fixed route
+      //        through rooms, stairs, doors that rise as it arrives, an
+      //        open-air courtyard with a toxic pool and a lift. The pointer
+      //        lets you look around a little; the cards sway with the turns
+      //        and flash when a door goes up.
+      const run = (() => {
+        // Sectors: axis-aligned rooms [x0, y0, x1, y1], floor, ceiling (map units, y = north)
+        const S = [
+          { r: [0, 0, 384, 384], f: 0, c: 128 },                         // 0 start room
+          { r: [384, 160, 768, 224], f: 0, c: 96 },                      // 1 corridor
+          { r: [768, 160, 784, 224], f: 0, c: 96, door: 1 },             // 2 door
+          { r: [784, 0, 1296, 512], f: 0, c: 192 },                      // 3 hall
+          { r: [976, 512, 1104, 544], f: 16, c: 192 },                   // 4 stairs
+          { r: [976, 544, 1104, 576], f: 32, c: 192 },
+          { r: [976, 576, 1104, 608], f: 48, c: 192 },
+          { r: [976, 608, 1104, 640], f: 64, c: 192 },
+          { r: [912, 640, 1168, 800], f: 64, c: 200 },                   // 8 landing
+          { r: [656, 704, 912, 768], f: 64, c: 160 },                    // 9 zig
+          { r: [592, 704, 656, 1024], f: 64, c: 160 },                   // 10 zag
+          { r: [656, 960, 848, 1024], f: 64, c: 160 },                   // 11
+          { r: [848, 960, 864, 1024], f: 64, c: 160, door: 1 },          // 12 door
+          { r: [864, 832, 1440, 1344], f: 48, c: 320, sky: 1 },          // 13 courtyard
+          { r: [1440, 1056, 1696, 1120], f: 48, c: 144 },                // 14 exit corridor
+          { r: [1696, 1024, 1824, 1152], f: 48, c: 176, lift: 1 },       // 15 lift
+          { r: [1824, 960, 2208, 1216], f: -64, c: 96 },                 // 16 lower room
+          { r: [2208, 1056, 2224, 1120], f: -64, c: 32, door: 1 },       // 17 door
+          { r: [2224, 1024, 2400, 1152], f: -64, c: 40 },                // 18 exit room
+        ];
+        S.forEach(s => { s.f0 = s.f; s.c0 = s.c; s.open = 0; });
+        S.forEach(s => { if (s.door) s.c = s.f; });
+        // Things inside rooms that aren't rooms of their own
+        const PILLARS = [[880, 96, 944, 160], [1136, 96, 1200, 160], [880, 352, 944, 416], [1136, 352, 1200, 416], [1088, 1232, 1120, 1264], [1184, 1232, 1216, 1264]];
+        const POOL = { r: [1024, 992, 1280, 1168], f: 24, in: 13 };
+        const SWITCH = [2400, 1072, 2400, 1104];
+        // Camera route (x, y, pause in seconds)
+        const ROUTE = [[192, 192, 0.6], [560, 192], [776, 192], [920, 210], [1040, 360], [1040, 520], [1040, 690], [900, 736], [640, 736], [624, 880], [700, 992], [856, 992], [960, 992], [990, 1250], [1320, 1250], [1340, 1088], [1520, 1088], [1760, 1088, 1.6], [1900, 1088], [2160, 1088], [2300, 1088, 1.4]];
+
+        // Split every room edge into solid wall pieces and openings shared with a neighbour
+        const walls = [], portals = [];
+        const edgesOf = s => { const [x0, y0, x1, y1] = s.r; return [[x0, y0, x1, y0, 'h'], [x1, y0, x1, y1, 'v'], [x1, y1, x0, y1, 'h'], [x0, y1, x0, y0, 'v']]; };
+        S.forEach((s, si) => {
+          for (const e of edgesOf(s)) {
+            const horiz = e[4] === 'h', fixed = horiz ? e[1] : e[0];
+            let lo = Math.min(horiz ? e[0] : e[1], horiz ? e[2] : e[3]), hi = Math.max(horiz ? e[0] : e[1], horiz ? e[2] : e[3]);
+            const cuts = [];
+            S.forEach((o, oi) => {
+              if (oi === si) return;
+              for (const g of edgesOf(o)) {
+                if (g[4] !== e[4] || (horiz ? g[1] : g[0]) !== fixed) continue;
+                const glo = Math.min(horiz ? g[0] : g[1], horiz ? g[2] : g[3]), ghi = Math.max(horiz ? g[0] : g[1], horiz ? g[2] : g[3]);
+                const a = Math.max(lo, glo), b = Math.min(hi, ghi);
+                if (b > a) { cuts.push([a, b]); if (si < oi) portals.push({ a: horiz ? [a, fixed] : [fixed, a], b: horiz ? [b, fixed] : [fixed, b], s: si, o: oi }); }
+              }
+            });
+            cuts.sort((p, q) => p[0] - q[0]);
+            let cur = lo;
+            for (const [a, b] of cuts) { if (a > cur) walls.push({ a: horiz ? [cur, fixed] : [fixed, cur], b: horiz ? [a, fixed] : [fixed, a], s: si }); cur = Math.max(cur, b); }
+            if (cur < hi) walls.push({ a: horiz ? [cur, fixed] : [fixed, cur], b: horiz ? [hi, fixed] : [fixed, hi], s: si });
+          }
+        });
+        const inside = (r, x, y) => x >= r[0] && x <= r[2] && y >= r[1] && y <= r[3];
+        const sectorAt = (x, y) => { let best = null; for (const s of S) if (inside(s.r, x, y) && (!best || s.f > best.f)) best = s; return best; };
+
+        // camera state
+        const cam = { x: 0, y: 0, z: 41, yaw: 0, yawV: 0, seg: 0, u: 0, wait: 0, fade: 1, bob: 0, done: 0 };
+        function restart() {
+          cam.seg = 0; cam.u = 0; cam.wait = ROUTE[0][2] || 0; cam.x = ROUTE[0][0]; cam.y = ROUTE[0][1];
+          cam.yaw = Math.atan2(ROUTE[1][1] - ROUTE[0][1], ROUTE[1][0] - ROUTE[0][0]); cam.z = 41; cam.done = 0;
+          S.forEach(s => { s.f = s.f0; s.c = s.door ? s.f0 : s.c0; s.open = 0; });
+        }
+        restart();
+
+        // geometry for one frame: polygons (3D) with a depth for painter's sort
+        function scene(P) {
+          const q = (a, b, z0, z1, kind) => { if (z1 > z0) P.push({ v: [[a[0], a[1], z0], [b[0], b[1], z0], [b[0], b[1], z1], [a[0], a[1], z1]], kind }); };
+          for (const w of walls) { const s = S[w.s]; q(w.a, w.b, s.f, s.c, s.door ? 'door' : s.lift ? 'lift' : 'wall'); }
+          for (const p of portals) {
+            const s = S[p.s], o = S[p.o];
+            const kind = s.door || o.door ? 'door' : s.lift || o.lift ? 'lift' : 'wall';
+            if (s.f !== o.f) q(p.a, p.b, Math.min(s.f, o.f), Math.max(s.f, o.f), kind === 'door' ? 'wall' : kind);
+            if (s.c !== o.c && !(s.sky && o.sky)) q(p.a, p.b, Math.min(s.c, o.c), Math.max(s.c, o.c), kind);
+          }
+          for (const r of PILLARS) {
+            const s = sectorAt((r[0] + r[2]) / 2, (r[1] + r[3]) / 2), top = s.sky ? s.f + 128 : s.c;
+            const c = [[r[0], r[1]], [r[2], r[1]], [r[2], r[3]], [r[0], r[3]]];
+            for (let k = 0; k < 4; k++) q(c[k], c[(k + 1) % 4], s.f, top, 'wall');
+          }
+          { const r = POOL.r, f = S[POOL.in].f, c = [[r[0], r[1]], [r[2], r[1]], [r[2], r[3]], [r[0], r[3]]];
+            for (let k = 0; k < 4; k++) q(c[k], c[(k + 1) % 4], POOL.f, f, 'pool'); }
+          // floor grid (as lines) so rooms read as spaces
+          for (const s of S) {
+            if (s.door) continue;
+            const [x0, y0, x1, y1] = s.r, st = 64;
+            for (let x = Math.ceil(x0 / st) * st; x <= x1; x += st) if (x > x0 && x < x1) for (let y = y0; y < y1; y += st) P.push({ v: [[x, y, s.f], [x, Math.min(y1, y + st), s.f]], kind: 'floor', line: 1 });
+            for (let y = Math.ceil(y0 / st) * st; y <= y1; y += st) if (y > y0 && y < y1) for (let x = x0; x < x1; x += st) P.push({ v: [[x, y, s.f], [Math.min(x1, x + st), y, s.f]], kind: 'floor', line: 1 });
+          }
+          { const [x0, y0, x1, y1] = POOL.r; for (let y = y0 + 24; y < y1; y += 24) P.push({ v: [[x0, y, POOL.f], [x1, y, POOL.f]], kind: 'pool', line: 1 }); }
+          P.push({ v: [[SWITCH[0] - 1, SWITCH[1], -40], [SWITCH[2] - 1, SWITCH[3], -40], [SWITCH[2] - 1, SWITCH[3], -8], [SWITCH[0] - 1, SWITCH[1], -8]], kind: 'switch' });
+        }
+
+        let doorFlash = 0;
+        return {
+          label: 'Techbase run',
+          draw(t, dt) {
+            if (reduce) dt = 0;
+            // ---- move the camera along the route
+            if (cam.wait > 0) cam.wait -= dt;
+            else if (cam.seg < ROUTE.length - 1) {
+              const a = ROUTE[cam.seg], b = ROUTE[cam.seg + 1], len = Math.hypot(b[0] - a[0], b[1] - a[1]);
+              cam.u += 190 * dt / len;
+              if (cam.u >= 1) { cam.seg++; cam.u = 0; cam.wait = b[2] || 0; }
+              const A = ROUTE[cam.seg], B = ROUTE[Math.min(ROUTE.length - 1, cam.seg + 1)];
+              cam.x = A[0] + (B[0] - A[0]) * cam.u; cam.y = A[1] + (B[1] - A[1]) * cam.u;
+              if (cam.seg < ROUTE.length - 1) {
+                const want = Math.atan2(B[1] - A[1], B[0] - A[0]);
+                let d = want - cam.yaw; while (d > Math.PI) d -= Math.PI * 2; while (d < -Math.PI) d += Math.PI * 2;
+                const step = d * Math.min(1, dt * 2.6);
+                cam.yaw += step; cam.yawV = dt ? step / dt : 0;
+                cam.bob += dt * 9;
+              }
+            } else { cam.done += dt; cam.yawV *= 0.9; }
+            if (cam.done > 1.2) restart();
+            cam.fade = cam.done > 0.6 ? Math.max(0, 1 - (cam.done - 0.6) / 0.6) : Math.min(1, cam.fade + dt * 2);
+            // doors rise as the camera approaches, the lift lowers once it's on board
+            for (const s of S) {
+              if (s.door) {
+                const cx = (s.r[0] + s.r[2]) / 2, cy = (s.r[1] + s.r[3]) / 2, near = Math.hypot(cam.x - cx, cam.y - cy) < 230;
+                const was = s.open;
+                s.open = Math.max(0, Math.min(1, s.open + (near ? 1.3 : -0.8) * dt));
+                if (was === 0 && s.open > 0) doorFlash = 1;
+                const top = Math.max(...S.filter(o => o !== s && !o.door && (inside(o.r, s.r[0] - 1, cy) || inside(o.r, s.r[2] + 1, cy) || inside(o.r, cx, s.r[1] - 1) || inside(o.r, cx, s.r[3] + 1))).map(o => o.c0));
+                s.c = s.f + (top - s.f) * s.open;
+              }
+              if (s.lift) {
+                const on = inside(s.r, cam.x, cam.y) && cam.seg >= 17;
+                s.f = Math.max(-64, Math.min(s.f0, s.f + (on ? -90 : 60) * dt));
+              }
+            }
+            const sec = sectorAt(cam.x, cam.y), eye = (sec ? sec.f : 0) + 41 + Math.sin(cam.bob) * 2;
+            cam.z += (eye - cam.z) * Math.min(1, dt * 8);
+
+            // ---- project and draw (hidden-line: fill each face with the page colour, far to near)
+            ctx.clearRect(0, 0, W, H);
+            const look = mouse.on ? (mouse.sx / innerWidth - 0.5) * 0.7 : 0, pitch = mouse.on ? (mouse.sy / innerHeight - 0.5) * -H * 0.3 : 0;
+            const yaw = cam.yaw + look, cs = Math.cos(yaw), sn = Math.sin(yaw), F = W * 0.55, NEAR = 6, FAR = 1700;
+            const toCam = p => { const dx = p[0] - cam.x, dy = p[1] - cam.y; return [dx * cs + dy * sn, dx * sn - dy * cs, p[2] - cam.z]; };
+            const P = []; scene(P);
+            const items = [];
+            for (const it of P) {
+              let poly = it.v.map(toCam);
+              // clip against the near plane
+              const out = [];
+              const n = poly.length, closed = !it.line;
+              for (let k = 0; k < (closed ? n : n - 1); k++) {
+                const a = poly[k], b = poly[(k + 1) % n], ina = a[0] > NEAR, inb = b[0] > NEAR;
+                if (ina) out.push(a);
+                if (ina !== inb) { const u = (NEAR - a[0]) / (b[0] - a[0]); out.push([NEAR, a[1] + (b[1] - a[1]) * u, a[2] + (b[2] - a[2]) * u]); }
+                if (!closed && k === n - 2 && inb) out.push(b);
+              }
+              if (out.length < 2) continue;
+              let depth = 0, minD = 1e9;
+              for (const p of out) { depth += p[0]; minD = Math.min(minD, p[0]); }
+              depth /= out.length;
+              if (minD > FAR) continue;
+              const scr = out.map(p => [W / 2 + p[1] / p[0] * F, H / 2 - p[2] / p[0] * F + pitch]);
+              items.push({ scr, depth, kind: it.kind, line: it.line });
+            }
+            items.sort((a, b) => b.depth - a.depth);
+            const dk = isDark(), bg = getComputedStyle(document.body).backgroundColor;
+            const col = { wall: INK(), floor: INK(), door: PINK, lift: CYAN, pool: GREEN, switch: AMBER };
+            ctx.lineWidth = 1;
+            for (const it of items) {
+              const fadeD = Math.max(0, 1 - it.depth / FAR) * cam.fade;
+              if (fadeD <= 0.01) continue;
+              ctx.beginPath();
+              it.scr.forEach((p, k) => k ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]));
+              if (!it.line) { ctx.closePath(); ctx.fillStyle = bg; ctx.fill(); }
+              const base = it.kind === 'floor' ? (dk ? 0.12 : 0.10) : it.kind === 'wall' ? (dk ? 0.42 : 0.36) : (dk ? 0.75 : 0.65);
+              ctx.strokeStyle = rgba(col[it.kind], base * fadeD);
+              ctx.stroke();
+            }
+          },
+          cards(dt) {
+            if (doorFlash > 0) { for (let i = 0; i < cards.length; i++) hit(i, 0.45); doorFlash = 0; }
+            const sway = Math.max(-6, Math.min(6, -cam.yawV * 5));
+            for (let i = 0; i < cards.length; i++) { KX[i] += (sway - KX[i]) * Math.min(1, dt * 6); KY[i] = Math.sin(cam.bob) * 1.2; }
+            flush(dt, 0.12);
+          }
+        };
+      })();
+
+      // ── 12. Snake: a pixel snake that plays itself, chasing the pointer (or
+      //        a food pellet when the pointer's away) and steering around the
+      //        cards, which light up as it slithers along their edges.
+      const snake = {
+        label: 'Snake',
+        g: 4, body: null, dir: [1, 0], acc: 0, food: null, eat: 0, len: 18,
+        resize() {
+          const cw = Math.floor(W / this.g), ch = Math.floor(H / this.g);
+          const x = cw >> 2, y = ch >> 2;
+          this.body = []; for (let k = 0; k < this.len; k++) this.body.push([x - k, y]);
+          this.dir = [1, 0]; this.food = null;
+        },
+        blocked(x, y) {
+          const g = this.g, cw = Math.floor(W / g), ch = Math.floor(H / g);
+          if (x < 0 || y < 0 || x >= cw || y >= ch) return true;
+          if (cardAt((x + 0.5) * g * PX, (y + 0.5) * g * PX) >= 0) return true;
+          for (let k = 0; k < this.body.length - 1; k++) if (this.body[k][0] === x && this.body[k][1] === y) return true;
+          return false;
+        },
+        placeFood() {
+          const g = this.g, cw = Math.floor(W / g), ch = Math.floor(H / g);
+          for (let k = 0; k < 60; k++) { const x = Math.random() * cw | 0, y = Math.random() * ch | 0; if (!this.blocked(x, y)) { this.food = [x, y]; return; } }
+        },
+        step() {
+          const g = this.g, h = this.body[0];
+          let target = null;
+          if (mouse.on) { const tx = mouse.x / PX / g | 0, ty = mouse.y / PX / g | 0; if (!this.blocked(tx, ty)) target = [tx, ty]; }
+          if (!target) { if (!this.food || this.blocked(this.food[0], this.food[1])) this.placeFood(); target = this.food; }
+          const d = this.dir, opts = [d, [d[1], -d[0]], [-d[1], d[0]]];
+          let best = null, bd = 1e9;
+          for (const o of opts) {
+            const nx = h[0] + o[0], ny = h[1] + o[1];
+            if (this.blocked(nx, ny)) continue;
+            const dd = target ? Math.abs(target[0] - nx) + Math.abs(target[1] - ny) : 0;
+            const score = dd + (o === d ? -0.3 : 0) + Math.random() * 0.2;
+            if (score < bd) { bd = score; best = o; }
+          }
+          if (!best) { this.resize(); return; }        // boxed in: start over
+          this.dir = best;
+          const nh = [h[0] + best[0], h[1] + best[1]];
+          this.body.unshift(nh);
+          let grow = false;
+          if (target && nh[0] === target[0] && nh[1] === target[1]) { grow = true; this.eat = 0.4; if (target === this.food) this.food = null; }
+          if (grow && this.body.length < 70) this.len++;
+          while (this.body.length > this.len) this.body.pop();
+          // nudge the card the head is skimming
+          for (let i = 0; i < rects.length; i++) if (rdist(rects[i], (nh[0] + 0.5) * g * PX, (nh[1] + 0.5) * g * PX) < g * PX * 1.2) hit(i, 0.7, best[0] * 1.5, best[1] * 1.5);
+          if (grow) for (let i = 0; i < rects.length; i++) if (rdist(rects[i], (nh[0] + 0.5) * g * PX, (nh[1] + 0.5) * g * PX) < 180) hit(i, 0.5);
+        },
+        draw(t, dt) {
+          if (!this.body) this.resize();
+          this.acc += dt;
+          if (!reduce) while (this.acc > 1 / 16) { this.acc -= 1 / 16; this.step(); }
+          this.eat = Math.max(0, this.eat - dt);
+          ctx.clearRect(0, 0, W, H);
+          const g = this.g, dk = isDark(), h = this.body[0], c = tintAt((h[0] + 0.5) * g * PX, (h[1] + 0.5) * g * PX);
+          this.body.forEach((p, k) => {
+            const a = (k === 0 ? 0.85 : 0.55 - k / this.body.length * 0.35) * (dk ? 1 : 0.9);
+            ctx.fillStyle = k === 0 ? rgba(c, a) : (k % 2 ? rgba(c, a) : ink(a * 0.6));
+            ctx.fillRect(p[0] * g, p[1] * g, g - 1, g - 1);
+          });
+          if (this.eat > 0) { ctx.strokeStyle = rgba(c, this.eat * 2); ctx.strokeRect(h[0] * g - 3, h[1] * g - 3, g + 5, g + 5); }
+          if (!mouse.on && this.food && (t * 3 | 0) % 2) { ctx.fillStyle = rgba(AMBER, dk ? 0.85 : 0.8); ctx.fillRect(this.food[0] * g + 1, this.food[1] * g + 1, g - 2, g - 2); }
+        },
+        cards(dt) { flush(dt, 0.1); }
+      };
+
+      const off = { label: 'Off', draw() { ctx.clearRect(0, 0, W, H); }, cards() {} };
+      const EFFECTS = { grid, dots, life, stars, trail, plasma, rain, fire, pool, flock, pong, snake, goo, sparks, run, off };
+      window.fxList = Object.keys(EFFECTS).map(k => [k, EFFECTS[k].label]);
+
+      function frame(now) {
+        const dt = Math.min(0.05, (now - last) / 1000); last = now;
+        const t = (now - t0) / 1000;
+        if (now - lastMove > 60) { mouse.vx = 0; mouse.vy = 0; }   // pointer has stopped
+        // smoothed pointer for the effects that should feel weighty
+        mouse.sx += (mouse.x - mouse.sx) * Math.min(1, dt * 10);
+        mouse.sy += (mouse.y - mouse.sy) * Math.min(1, dt * 10);
+        measure();
+        effect.draw(t, dt);
+        if (fine) spotlight();
+        if (!reduce) effect.cards(dt);
+        if (!reduce) raf = requestAnimationFrame(frame);
+      }
+      function start() {
+        cancelAnimationFrame(raf);
+        last = performance.now();
+        raf = requestAnimationFrame(frame);
+      }
+      function use(n) {
+        if (!EFFECTS[n]) n = 'grid';
+        name = n; effect = EFFECTS[n];
+        clearImpulses(); resetCards(); resize();
+        document.dispatchEvent(new CustomEvent('fxchange', { detail: n }));
+        start();
+      }
+      window.fxUse = use;
+
+      let lastMove = 0;
+      addEventListener('pointermove', e => {
+        if (e.pointerType !== 'mouse') return;
+        const now = performance.now(), dt = Math.max(0.008, (now - lastMove) / 1000); lastMove = now;
+        mouse.vx = (e.clientX - mouse.x) / dt; mouse.vy = (e.clientY - mouse.y) / dt;
+        if (!mouse.on) { mouse.sx = e.clientX; mouse.sy = e.clientY; mouse.vx = mouse.vy = 0; }
+        mouse.x = e.clientX; mouse.y = e.clientY; mouse.on = true;
+        if (reduce) frame(now);
+      }, { passive: true });
+      document.documentElement.addEventListener('pointerleave', () => { mouse.on = false; mouse.vx = mouse.vy = 0; });
+      addEventListener('resize', () => { resize(); if (reduce) frame(performance.now()); });
+      addEventListener('scroll', () => { if (reduce) frame(performance.now()); }, { passive: true });
+      document.addEventListener('visibilitychange', () => { if (document.hidden) cancelAnimationFrame(raf); else if (!reduce) start(); });
+
+      if (!document.getElementById('fx-btn')) use('grid');
+    })();
+
+    // ── Background picker (header, next to the theme switch) ───────
+    // A new effect is picked at random on every visit, unless the visitor
+    // pins one from the menu. Each option gets a tiny live "screen" preview.
+    (function () {
+      const btn = document.getElementById('fx-btn'), panel = document.getElementById('fx-panel');
+      const grid = document.getElementById('fx-grid'), nameEl = document.getElementById('fx-name');
+      const modeEl = document.getElementById('fx-mode'), ico = document.getElementById('fx-ico');
+      const shuffle = document.getElementById('fx-shuffle');
+      if (!btn || !window.fxUse) return;
+      const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const store = { get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set(k, v) { try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, v); } catch (e) {} } };
+      const list = fxList, keys = list.map(f => f[0]), play = keys.filter(k => k !== 'off');
+
+      // ---- tiny previews: 48×30 pixel screens, phosphor colours on black
+      const TW = 48, TH = 30, P = '#f472b6', C = '#67e8f9', A = '#fbbf24', G = '#4ade80', Wt = '#e5e3db', D = 'rgba(229,227,219,0.28)';
+      const rng = s => () => (s = (s * 16807) % 2147483647) / 2147483647;
+      const px = (g, x, y, c) => { g.fillStyle = c; g.fillRect(x | 0, y | 0, 1, 1); };
+      const THUMB = {
+        grid(g, t) { for (let y = 0; y < TH; y++) for (let x = 0; x < TW; x++) { const dx = x - 24 - Math.sin(t) * 6, dy = y - 15, k = Math.exp(-(dx * dx + dy * dy) / 120) * 0.6, X = x + dx * k, Y = y + dy * k; if ((X | 0) % 6 === 0 || (Y | 0) % 6 === 0) px(g, x, y, k > 0.15 ? C : D); } },
+        dots(g, t) { const cx = 24 + Math.sin(t) * 10; for (let y = 2; y < TH; y += 4) for (let x = 2; x < TW; x += 4) { const d = Math.hypot(x - cx, y - 15); if (d < 6) continue; px(g, x, y, d < 10 ? P : D); } },
+        life(g, t) { const r = rng(7 + (t * 4 | 0)); for (let k = 0; k < 90; k++) px(g, r() * TW, r() * TH, r() < 0.25 ? C : D); const o = (t * 6 | 0) % 40; [[1, 0], [2, 1], [0, 2], [1, 2], [2, 2]].forEach(([a, b]) => px(g, 4 + o + a, 10 + b, P)); },
+        stars(g, t) { const r = rng(3); for (let k = 0; k < 40; k++) { const a = r() * 6.28, d0 = ((r() * 30 + t * 18) % 30); const d1 = d0 + 2 + d0 * 0.15; g.strokeStyle = d0 > 18 ? C : D; g.beginPath(); g.moveTo(24 + Math.cos(a) * d0, 15 + Math.sin(a) * d0 * 0.7); g.lineTo(24 + Math.cos(a) * d1, 15 + Math.sin(a) * d1 * 0.7); g.stroke(); } },
+        trail(g, t) { for (let k = 0; k < 120; k++) { const u = k / 120, x = 4 + u * 40, y = 15 + Math.sin(u * 7 + t * 2) * 8, v = u; for (let j = -2; j <= 2; j++) if (((x | 0) + (y | 0) + j) % 2 === 0 && v > Math.abs(j) * 0.25) px(g, x, y + j, v > 0.75 ? C : v > 0.4 ? P : D); } },
+        plasma(g, t) { for (let y = 0; y < TH; y += 2) for (let x = 0; x < TW; x += 2) { const v = (Math.sin(x * 0.2 + t) + Math.sin(y * 0.3 - t) + Math.sin((x + y) * 0.15 + t * 0.7)) / 3; if (v > 0.1) { g.fillStyle = v > 0.55 ? C : v > 0.3 ? P : 'rgba(167,139,250,0.55)'; g.fillRect(x, y, 2, 2); } } },
+        rain(g, t) { const r = rng(11); for (let x = 1; x < TW; x += 3) { const sp = 10 + r() * 16, len = 5 + r() * 8 | 0, head = (r() * 40 + t * sp) % 44 - 4; for (let k = 0; k < len; k++) if (head - k >= 0 && head - k < TH && r() < 0.8) px(g, x, head - k, k === 0 ? Wt : k < 3 ? G : 'rgba(74,222,128,0.4)'); } },
+        fire(g, t) { const r = rng(5 + (t * 8 | 0)); for (let x = 0; x < TW; x++) { const h = 6 + Math.sin(x * 0.4 + t * 3) * 3 + r() * 5 + (Math.abs(x - 24) < 6 ? 8 : 0); for (let y = 0; y < h; y++) px(g, x, TH - 1 - y, y > h - 2 ? 'rgba(220,38,38,0.7)' : y > h * 0.5 ? '#f97316' : A); } },
+        pool(g, t) { for (let y = 0; y < TH; y++) for (let x = 0; x < TW; x++) { const d = Math.hypot(x - 24, (y - 15) * 1.4), w = Math.sin(d * 0.9 - t * 4); if (w > 0.85) px(g, x, y, d < 12 ? C : D); } },
+        flock(g, t) { const r = rng(9); for (let k = 0; k < 14; k++) { const a = t * 0.8 + k * 0.45, x = 24 + Math.cos(a) * (10 + r() * 6), y = 15 + Math.sin(a * 1.3) * (6 + r() * 4); px(g, x, y, C); px(g, x - 1, y - 1, D); px(g, x - 1, y + 1, D); } },
+        pong(g, t) { for (let y = 0; y < TH; y += 3) px(g, 24, y, D); const bx = 6 + Math.abs(((t * 22) % 72) - 36), by = 3 + Math.abs(((t * 15) % 48) - 24); g.fillStyle = Wt; g.fillRect(bx | 0, by | 0, 2, 2); g.fillStyle = P; g.fillRect(2, Math.max(1, Math.min(22, by - 3)) | 0, 2, 7); g.fillStyle = C; g.fillRect(44, Math.max(1, Math.min(22, by - 3)) | 0, 2, 7); },
+        snake(g, t) { const path = []; let x = 6, y = 6; const steps = (t * 10 | 0) % 60; for (let k = 0; k < 60; k++) { path.push([x, y]); if (k < 18) x += 2; else if (k < 24) y += 2; else if (k < 40) x -= 2; else y -= 0; } path.slice(Math.max(0, steps - 14), steps).forEach((p, k, a) => { g.fillStyle = k === a.length - 1 ? Wt : k % 2 ? G : 'rgba(74,222,128,0.6)'; g.fillRect(p[0], p[1], 2, 2); }); if ((t * 3 | 0) % 2) { g.fillStyle = A; g.fillRect(38, 20, 2, 2); } },
+        goo(g, t) { const b = [[16 + Math.sin(t) * 6, 15, 7], [32 - Math.sin(t) * 6, 14 + Math.cos(t) * 4, 6]]; for (let y = 0; y < TH; y++) for (let x = 0; x < TW; x++) { let f = 0; for (const [bx, by, r] of b) f += r * r / ((x - bx) ** 2 + (y - by) ** 2 + 1); if (f > 1.15) px(g, x, y, 'rgba(244,114,182,0.6)'); else if (f > 1) px(g, x, y, C); } },
+        sparks(g, t) { const u = (t * 0.7) % 1, r = rng(2); for (let k = 0; k < 36; k++) { const a = r() * 6.28, s = 4 + r() * 12; px(g, 24 + Math.cos(a) * s * u, 12 + Math.sin(a) * s * u + u * u * 8, r() < 0.5 ? P : A); } for (let y = 26; y < 30; y++) px(g, 24, y + (u * 0), D); },
+        run(g, t) { g.strokeStyle = Wt; g.lineWidth = 1; const o = (t * 0.6) % 1; g.globalAlpha = 0.55; g.beginPath(); [[0, 0, 18, 9], [48, 0, 30, 9], [0, 30, 18, 21], [48, 30, 30, 21]].forEach(([a, b, c, d]) => { g.moveTo(a, b); g.lineTo(c, d); }); g.stroke(); for (let k = 0; k < 4; k++) { const s = Math.pow(0.6, k + o); g.globalAlpha = 0.25 + s * 0.5; g.strokeRect(24 - 24 * s + 0.5, 15 - 15 * s + 0.5, 48 * s, 30 * s); } g.globalAlpha = 1; g.strokeStyle = P; const s = Math.pow(0.6, 1.4 + o); g.strokeRect(24 - 6 * s * 1.6 + 0.5, 15 - 15 * s + 0.5, 12 * s * 1.6, 30 * s); },
+        off(g) { g.fillStyle = D; g.fillRect(22, 14, 4, 1); }
+      };
+      function paint(cv, k, t) {
+        const g = cv.getContext('2d');
+        g.setTransform(cv.width / TW, 0, 0, cv.height / TH, 0, 0);
+        g.fillStyle = '#0b0716'; g.fillRect(0, 0, TW, TH);
+        g.lineWidth = 1; g.globalAlpha = 1;
+        (THUMB[k] || THUMB.off)(g, t);
+      }
+
+      // ---- build the tiles
+      list.forEach(([k, label], i) => {
+        const b = document.createElement('button');
+        b.type = 'button'; b.className = 'fx-tile'; b.dataset.fx = k; b.setAttribute('role', 'option');
+        const cv = document.createElement('canvas'); cv.width = TW; cv.height = TH; cv.className = 'fx-thumb'; cv.setAttribute('aria-hidden', 'true');
+        const n = document.createElement('b'); n.textContent = k === 'off' ? '—' : String(i + 1).padStart(2, '0');
+        const s = document.createElement('span'); s.textContent = label;
+        b.append(cv, n, s);
+        b.addEventListener('click', () => { choose(k, true); close(); });
+        b.addEventListener('mouseenter', () => { hover = k; });
+        b.addEventListener('focus', () => { hover = k; });
+        grid.appendChild(b);
+        paint(cv, k, 0.6);
+      });
+      const tiles = [...grid.children];
+
+      // ---- state: pinned choice or a fresh random pick each visit
+      let cur = 'off', hover = null, raf = 0;
+      function label(k) { const f = list.find(f => f[0] === k); return f ? f[1] : 'Background'; }
+      function reflect() {
+        const pinned = store.get('fxPin');
+        nameEl.textContent = label(cur);
+        btn.setAttribute('aria-label', 'Background effect: ' + label(cur) + (pinned ? ' (pinned)' : ''));
+        tiles.forEach(t => t.setAttribute('aria-selected', String(t.dataset.fx === cur)));
+        btn.classList.toggle('is-pinned', !!pinned);
+        modeEl.innerHTML = pinned ? '<b>Pinned.</b> Shows on every visit.' : '<b>Shuffle on.</b> A new one every visit.';
+        paint(ico, cur, 0.6);
+      }
+      function choose(k, pin) {
+        cur = k; fxUse(k);
+        if (pin) store.set('fxPin', k);
+        store.set('fxLast', k);
+        reflect();
+      }
+      function randomPick() {
+        const last = store.get('fxLast'), pool = play.filter(k => k !== last);
+        return pool[Math.random() * pool.length | 0];
+      }
+      document.addEventListener('fxchange', e => { cur = e.detail; reflect(); });
+      const pinned = store.get('fxPin');
+      choose(pinned && keys.includes(pinned) ? pinned : randomPick(), false);
+
+      shuffle.addEventListener('click', () => {
+        store.set('fxPin', null);
+        choose(randomPick(), false);
+        shuffle.classList.remove('spin'); void shuffle.offsetWidth; shuffle.classList.add('spin');
+      });
+
+      // ---- open / close
+      function tick(now) {
+        const t = now / 1000;
+        tiles.forEach(tl => { const k = tl.dataset.fx; if (k === hover || k === cur) paint(tl.firstChild, k, t); });
+        paint(ico, cur, t);
+        raf = requestAnimationFrame(tick);
+      }
+      function open() {
+        panel.hidden = false; btn.setAttribute('aria-expanded', 'true');
+        requestAnimationFrame(() => panel.classList.add('open'));
+        const sel = tiles.find(t => t.dataset.fx === cur); (sel || tiles[0]).focus({ preventScroll: true });
+        if (!reduce) raf = requestAnimationFrame(tick);
+      }
+      function close() {
+        if (panel.hidden) return;
+        panel.classList.remove('open'); btn.setAttribute('aria-expanded', 'false');
+        cancelAnimationFrame(raf); hover = null;
+        tiles.forEach(tl => paint(tl.firstChild, tl.dataset.fx, 0.6));
+        setTimeout(() => { if (!panel.classList.contains('open')) panel.hidden = true; }, reduce ? 0 : 160);
+      }
+      btn.addEventListener('click', e => { e.stopPropagation(); panel.hidden ? open() : close(); });
+      panel.addEventListener('click', e => e.stopPropagation());
+      document.addEventListener('click', close);
+      addEventListener('keydown', e => {
+        if (e.key === 'Escape' && !panel.hidden) { close(); btn.focus(); return; }
+        if (!panel.hidden && ['ArrowRight', 'ArrowLeft', 'ArrowDown', 'ArrowUp'].includes(e.key)) {
+          // move focus around the tile grid
+          const cols = getComputedStyle(grid).gridTemplateColumns.split(' ').length;
+          const i = tiles.indexOf(document.activeElement); if (i < 0) return;
+          const d = { ArrowRight: 1, ArrowLeft: -1, ArrowDown: cols, ArrowUp: -cols }[e.key];
+          const j = Math.max(0, Math.min(tiles.length - 1, i + d)); tiles[j].focus(); e.preventDefault(); return;
+        }
+        const tag = (e.target.tagName || '').toLowerCase();
+        if (panel.hidden && !e.ctrlKey && !e.metaKey && !e.altKey && tag !== 'input' && tag !== 'textarea' && tag !== 'select') {
+          if (e.key === ']' || e.key === '[') { const i = play.indexOf(cur), j = (i + (e.key === ']' ? 1 : -1) + play.length) % play.length; choose(play[j], true); }
+        }
+      });
     })();
   </script>
 
