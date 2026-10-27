@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Agent Dock — a Windows 11 taskbar flyout for launching every AI agent on your PC, with presets, per-agent accounts and plan usage at a glance." />
+  <title>Agent Dock — Joshua Penman</title>
+  <style>
+    :root {
+      --bg:          #f5f4f0;
+      --bg-card:     #ffffff;
+      --bg-hdr:      rgba(245, 244, 240, 0.88);
+      --text:        #18170f;
+      --text-dim:    #6b6860;
+      --border:      #e2e0da;
+      --border-card: #e8e6e1;
+      --shadow-card: 0 1px 4px rgba(0,0,0,0.06), 0 4px 12px rgba(0,0,0,0.04);
+      --shadow-up:   0 2px 8px rgba(0,0,0,0.08), 0 8px 24px rgba(0,0,0,0.07);
+      --accent:      #1d4ed8;
+      --c:           #3b82f6;
+    }
+    [data-theme="dark"] {
+      --bg:          #111009;
+      --bg-card:     #1b1a14;
+      --bg-hdr:      rgba(17, 16, 9, 0.90);
+      --text:        #e5e3db;
+      --text-dim:    #8a8780;
+      --border:      #282720;
+      --border-card: #28261e;
+      --shadow-card: 0 1px 4px rgba(0,0,0,0.3), 0 4px 12px rgba(0,0,0,0.2);
+      --shadow-up:   0 2px 8px rgba(0,0,0,0.4), 0 8px 24px rgba(0,0,0,0.3);
+      --accent:      #60a5fa;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── Header ────────────────────────────────────────────────────── */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      height: 56px;
+      padding: 0 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--bg-hdr);
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      transition: background 0.2s, border-color 0.2s;
+    }
+
+    .back-link {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-family: "Courier New", Courier, monospace;
+      font-size: 0.78rem;
+      letter-spacing: 0.02em;
+      color: var(--text-dim);
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+    .back-link:hover { color: var(--text); }
+    .back-link svg {
+      width: 13px; height: 13px;
+      stroke: currentColor; fill: none;
+      stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+      flex-shrink: 0;
+    }
+
+    .theme-btn {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+      cursor: pointer;
+      padding: 0.35rem 0.8rem;
+      border-radius: 6px;
+      font-size: 0.78rem;
+      font-family: inherit;
+      line-height: 1;
+      transition: border-color 0.15s, color 0.15s;
+    }
+    .theme-btn:hover { border-color: var(--text-dim); color: var(--text); }
+    .theme-btn svg {
+      width: 13px; height: 13px;
+      stroke: currentColor; fill: none;
+      stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+      flex-shrink: 0;
+    }
+
+    /* ── Project hero ──────────────────────────────────────────────── */
+    .proj-hero {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 5rem 2rem 3.5rem;
+      display: flex;
+      align-items: flex-start;
+      gap: 2.5rem;
+    }
+
+    .proj-logo {
+      width: 76px;
+      height: 76px;
+      border-radius: 18px;
+      overflow: hidden;
+      flex-shrink: 0;
+      box-shadow: 0 2px 18px color-mix(in srgb, var(--c) 32%, transparent);
+    }
+    .proj-logo img {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    .proj-hero-body { flex: 1; }
+
+    .proj-eyebrow {
+      font-family: "Courier New", Courier, monospace;
+      font-size: 0.72rem;
+      color: var(--text-dim);
+      letter-spacing: 0.06em;
+      margin-bottom: 0.7rem;
+      display: flex;
+      align-items: center;
+      gap: 0.55rem;
+    }
+    .proj-eyebrow::before {
+      content: '';
+      display: block;
+      width: 20px;
+      height: 1px;
+      background: currentColor;
+      flex-shrink: 0;
+    }
+
+    h1.proj-title {
+      font-size: clamp(2.25rem, 5vw, 3.75rem);
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      line-height: 1.05;
+      color: var(--c);
+      margin-bottom: 0.75rem;
+    }
+
+    .proj-tagline {
+      font-size: 1rem;
+      color: var(--text-dim);
+      line-height: 1.65;
+      max-width: 500px;
+      margin-bottom: 1.4rem;
+    }
+
+    /* ── Platform strip ────────────────────────────────────────────── */
+    .platforms {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 0.55rem;
+    }
+    .platforms:last-of-type { margin-bottom: 1rem; }
+    .plat-label {
+      font-family: "Courier New", Courier, monospace;
+      font-size: 0.68rem;
+      color: var(--text-dim);
+      letter-spacing: 0.04em;
+    }
+    .plat {
+      display: flex;
+      align-items: center;
+      gap: 0.28rem;
+      font-family: "Courier New", Courier, monospace;
+      font-size: 0.68rem;
+      color: var(--text-dim);
+    }
+    .plat svg {
+      width: 13px; height: 13px;
+      fill: currentColor;
+      flex-shrink: 0;
+    }
+
+    .tags {
+      display: flex;
+      gap: 0.3rem;
+      flex-wrap: wrap;
+    }
+    .tag {
+      font-family: "Courier New", Courier, monospace;
+      font-size: 0.68rem;
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      background: rgba(59, 130, 246, 0.10);
+      color: var(--c);
+      border: 1px solid rgba(59, 130, 246, 0.22);
+      white-space: nowrap;
+    }
+
+    /* ── Content ───────────────────────────────────────────────────── */
+    .proj-content {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 0 2rem 5rem;
+    }
+
+    .proj-section { margin-bottom: 3.5rem; }
+
+    .section-label {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+    }
+    .section-label span {
+      font-family: "Courier New", Courier, monospace;
+      font-size: 0.7rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      white-space: nowrap;
+    }
+    .section-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    .prose p {
+      font-size: 0.94rem;
+      line-height: 1.8;
+      color: var(--text-dim);
+      margin-bottom: 1.1rem;
+    }
+    .prose p:last-child { margin-bottom: 0; }
+    .prose p strong { color: var(--text); font-weight: 600; }
+    .prose code {
+      font-family: "Courier New", Courier, monospace;
+      font-size: 0.86em;
+      color: var(--text);
+      background: color-mix(in srgb, var(--c) 9%, transparent);
+      padding: 0.05em 0.35em;
+      border-radius: 3px;
+    }
+
+    /* ── Screenshots ───────────────────────────────────────────────── */
+    .shots-pair {
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+    .shots-pair figure { flex: 0 0 auto; max-width: 100%; }
+    .shots-pair img { display: block; height: 570px; width: auto; max-width: 100%; }
+    @media (min-width: 761px) {
+      /* Keep the caption from widening the figure past its screenshot. */
+      .shots-pair figcaption { max-width: 318px; }
+      .shots-pair figure + figure figcaption { max-width: 483px; }
+    }
+
+    .shot-full { margin-top: 1rem; }
+    .shot-full img { display: block; width: 100%; height: auto; }
+
+    figure {
+      background: var(--bg-card);
+      border: 1px solid var(--border-card);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: var(--shadow-card);
+    }
+
+    figure img { border-bottom: 1px solid var(--border-card); }
+
+    figcaption {
+      padding: 0.6rem 1rem;
+      font-size: 0.72rem;
+      line-height: 1.5;
+      color: var(--text-dim);
+      font-family: "Courier New", Courier, monospace;
+    }
+
+    /* ── Features grid ─────────────────────────────────────────────── */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+    }
+
+    .feature-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-card);
+      border-radius: 12px;
+      padding: 1.15rem;
+      box-shadow: var(--shadow-card);
+    }
+
+    .feature-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      background: rgba(59, 130, 246, 0.12);
+      border: 1px solid rgba(59, 130, 246, 0.22);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 0.75rem;
+    }
+    .feature-icon svg {
+      width: 16px; height: 16px;
+      stroke: var(--c);
+      fill: none;
+      stroke-width: 1.75;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .feature-title {
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: -0.015em;
+      color: var(--text);
+      margin-bottom: 0.3rem;
+    }
+
+    .feature-desc {
+      font-size: 0.78rem;
+      color: var(--text-dim);
+      line-height: 1.6;
+    }
+
+    /* ── Getting started ───────────────────────────────────────────── */
+    .code-block {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-top: 1rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border-card);
+      border-radius: 10px;
+      padding: 0.85rem 1rem;
+      box-shadow: var(--shadow-card);
+    }
+    .code-block code {
+      flex: 1;
+      font-family: "Courier New", Courier, monospace;
+      font-size: 0.82rem;
+      color: var(--c);
+      word-break: break-all;
+      background: none;
+      padding: 0;
+    }
+    .copy-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      width: 30px;
+      height: 30px;
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      cursor: pointer;
+      color: var(--text-dim);
+      transition: border-color 0.15s, color 0.15s;
+    }
+    .copy-btn:hover { border-color: var(--c); color: var(--c); }
+    .copy-btn svg {
+      width: 13px; height: 13px;
+      stroke: currentColor; fill: none;
+      stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+    }
+    .github-callout {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-top: 1rem;
+      padding: 1rem 1.1rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border-card);
+      border-left: 3px solid var(--c);
+      border-radius: 10px;
+      text-decoration: none;
+      box-shadow: var(--shadow-card);
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .github-callout:hover {
+      box-shadow: var(--shadow-up);
+      border-color: var(--c);
+    }
+    .github-callout > svg:first-child {
+      width: 20px; height: 20px;
+      stroke: var(--c); fill: none;
+      stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round;
+      flex-shrink: 0;
+    }
+    .github-callout > div { flex: 1; }
+    .github-callout-title {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 0.2rem;
+    }
+    .github-callout-desc {
+      font-size: 0.78rem;
+      color: var(--text-dim);
+      line-height: 1.55;
+    }
+    .github-callout-arrow {
+      width: 16px; height: 16px;
+      stroke: var(--c); fill: none;
+      stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+      flex-shrink: 0;
+      opacity: 0;
+      transform: translateX(-4px);
+      transition: opacity 0.15s, transform 0.15s;
+    }
+    .github-callout:hover .github-callout-arrow {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    .launch-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      background: var(--c);
+      color: #fff;
+      text-decoration: none;
+      padding: 0.65rem 1.3rem;
+      border-radius: 8px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      margin-top: 0.5rem;
+      transition: filter 0.15s, transform 0.15s;
+    }
+    .launch-btn:hover { filter: brightness(1.08); transform: translateY(-1px); }
+    .launch-btn svg {
+      width: 13px; height: 13px;
+      stroke: currentColor; fill: none;
+      stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+    }
+
+    .install-note {
+      margin-top: 0.9rem;
+      font-size: 0.8rem;
+      color: var(--text-dim);
+      line-height: 1.6;
+    }
+
+    /* ── Links row ─────────────────────────────────────────────────── */
+    .proj-links-row {
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+      flex-wrap: wrap;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .proj-link {
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      font-size: 0.82rem;
+      color: var(--text-dim);
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+    .proj-link:hover { color: var(--c); }
+    .proj-link svg {
+      width: 12px; height: 12px;
+      stroke: currentColor; fill: none;
+      stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+    }
+
+    /* ── Footer ────────────────────────────────────────────────────── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 1.5rem 2rem;
+      text-align: center;
+      font-size: 0.78rem;
+      color: var(--text-dim);
+      transition: border-color 0.2s;
+    }
+    footer a { color: inherit; text-decoration: none; transition: color 0.15s; }
+    footer a:hover { color: var(--text); }
+
+    /* ── Responsive ────────────────────────────────────────────────── */
+    @media (max-width: 760px) {
+      .shots-pair { flex-direction: column; align-items: center; }
+      .shots-pair figure { width: 100%; max-width: 430px; }
+      .shots-pair img { height: auto; width: 100%; }
+    }
+    @media (max-width: 680px) {
+      .proj-hero { flex-direction: column; gap: 1.25rem; padding: 2.5rem 1.25rem 2rem; }
+      .proj-content { padding: 0 1.25rem 3.5rem; }
+      .features-grid { grid-template-columns: 1fr; }
+      header { padding: 0 1.25rem; }
+    }
+    @media (min-width: 681px) and (max-width: 860px) {
+      .features-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <a href="/" class="back-link">
+      <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+      Back
+    </a>
+    <button class="theme-btn" onclick="toggleTheme()" aria-label="Toggle colour scheme">
+      <svg id="theme-icon" viewBox="0 0 24 24">
+        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+      </svg>
+      <span id="theme-label">Dark</span>
+    </button>
+  </header>
+
+  <main>
+
+    <section class="proj-hero">
+      <div class="proj-logo">
+        <img src="img/icon.png" width="76" height="76" alt="Agent Dock icon" />
+      </div>
+      <div class="proj-hero-body">
+        <p class="proj-eyebrow">project</p>
+        <h1 class="proj-title">Agent Dock</h1>
+        <p class="proj-tagline">Every AI agent on your PC, one click from the taskbar.</p>
+        <div class="platforms">
+          <span class="plat-label">Runs on</span>
+          <span class="plat" title="Windows 11">
+            <svg viewBox="0 0 14 14"><rect x=".5" y=".5" width="5.5" height="5.5"/><rect x="8" y=".5" width="5.5" height="5.5"/><rect x=".5" y="8" width="5.5" height="5.5"/><rect x="8" y="8" width="5.5" height="5.5"/></svg>
+            Windows 11
+          </span>
+        </div>
+        <div class="platforms">
+          <span class="plat-label">Builds</span>
+          <span class="plat">x64 &middot; arm64</span>
+        </div>
+        <div class="tags">
+          <span class="tag">C#</span>
+          <span class="tag">WinUI 3</span>
+          <span class="tag">.NET 10</span>
+          <span class="tag">Native AOT</span>
+        </div>
+      </div>
+    </section>
+
+    <div class="proj-content">
+
+      <section class="proj-section">
+        <div class="section-label"><span>Overview</span></div>
+        <div class="prose">
+          <p>There are now more AI coding agents than there are ways to remember how to start them. Claude Code is one command, Codex another; Copilot CLI wants a working folder, Cursor wants a window, and each one keeps its own sign-in, its own configuration and its own idea of how much of your plan is left. Alt-tabbing to a terminal to type the right incantation gets old quickly.</p>
+          <p><strong>Agent Dock</strong> puts them all behind one pinned taskbar icon. Click it and a small acrylic flyout opens above the taskbar, already laid out: the folder you&rsquo;re working in, then your command line agents and desktop apps, with the number or letter key that launches each one. Pick an agent and it opens in Windows Terminal in that folder &mdash; or, for a desktop app, just opens. Presets pin an agent to a folder you keep coming back to, and the taskbar icon&rsquo;s right-click menu can launch an agent straight into the last folder without opening the flyout at all.</p>
+          <p>It also answers the question you usually only ask after starting something: how much is left? Where an agent reports plan usage &mdash; Claude Code, Codex, GitHub Copilot, Cursor, Kiro, Grok Build and Freebuff among them &mdash; the drawer beside the list shows session and weekly bars, reset times and any API balance. A usage overview lists every agent at once and suggests whichever one currently has the most headroom, with a reason. Accounts and API keys are added once and handed to whichever agents can use them, and per-agent environment variables cover the rest, so a work and a personal Claude Code can live side by side.</p>
+          <p>Under the hood it&rsquo;s a WinUI 3 application on .NET 10, unpackaged and self-contained, compiled with Native AOT. It starts with Windows and stays in the background with the flyout already built and rendered once off-screen. Clicking the pinned icon starts a second copy that forwards a single line over a named pipe and exits in milliseconds, so the panel is simply there. There is no admin prompt, no runtime to install, and it updates itself.</p>
+        </div>
+      </section>
+
+      <section class="proj-section">
+        <div class="section-label"><span>Screenshots</span></div>
+
+        <div class="shots-pair">
+          <figure>
+            <img src="img/flyout.png" alt="The Agent Dock flyout, showing a working folder, the command line agents and the desktop apps" loading="lazy" />
+            <figcaption>The flyout: folder, agents, launch keys.</figcaption>
+          </figure>
+          <figure>
+            <img src="img/usage.png" alt="The Agent Dock usage drawer showing session and weekly limits for Claude Code, Codex, GitHub Copilot CLI, Cursor CLI, Grok Build and Freebuff" loading="lazy" />
+            <figcaption>Usage overview: every plan, and who has room left.</figcaption>
+          </figure>
+        </div>
+
+        <figure class="shot-full">
+          <img src="img/settings.png" alt="Agent Dock settings with the Claude Code page open, showing its name, arguments, environment variables and usage limits options" loading="lazy" />
+          <figcaption>Per-agent settings: accounts, arguments, environment, and where the usage numbers come from.</figcaption>
+        </figure>
+      </section>
+
+      <section class="proj-section">
+        <div class="section-label"><span>Features</span></div>
+        <div class="features-grid">
+
+          <div class="feature-card">
+            <div class="feature-icon">
+              <svg viewBox="0 0 24 24"><path d="M12 3l1.9 5.6 5.6 1.9-5.6 1.9L12 18l-1.9-5.6L4.5 10.5l5.6-1.9z"/></svg>
+            </div>
+            <p class="feature-title">Taskbar, not Alt+Tab</p>
+            <p class="feature-desc">Click the pin and the flyout is already waiting. Pick with the mouse, the arrow keys and Enter, or a single number or letter.</p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon">
+              <svg viewBox="0 0 24 24"><path d="M20 7h-9"/><path d="M14 17H5"/><circle cx="17" cy="17" r="3"/><circle cx="7" cy="7" r="3"/></svg>
+            </div>
+            <p class="feature-title">Presets</p>
+            <p class="feature-desc">An agent tied to a folder, at the top of the flyout and in the jump list. Presets always open in their own folder, whatever the current one is.</p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon">
+              <svg viewBox="0 0 24 24"><line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/></svg>
+            </div>
+            <p class="feature-title">Usage at a glance</p>
+            <p class="feature-desc">Session and weekly limits, reset times and API balances for the agents that publish them &mdash; plus a suggestion when one plan is clearly the better choice.</p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon">
+              <svg viewBox="0 0 24 24"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3"/></svg>
+            </div>
+            <p class="feature-title">Accounts in one place</p>
+            <p class="feature-desc">Add an API key once and hand it to every agent that can use it. Duplicate an agent for a second account, with its own config folder and environment.</p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon">
+              <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            </div>
+            <p class="feature-title">Finds what you have</p>
+            <p class="feature-desc">Scans for the agents it knows, picks up desktop apps from the Start menu, and accepts any custom command line. Drag to reorder; hide what isn&rsquo;t installed.</p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon">
+              <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18"/><path d="M13 8h4"/><path d="M13 12h4"/></svg>
+            </div>
+            <p class="feature-title">Native, not Electron</p>
+            <p class="feature-desc">WinUI 3 with Windows&rsquo; own acrylic, light and dark mode and accent colour. Self-contained, Native AOT, no runtime and no admin prompt.</p>
+          </div>
+
+        </div>
+      </section>
+
+      <section class="proj-section">
+        <div class="section-label"><span>Make It Yours</span></div>
+        <div class="prose">
+          <p>Drag the top edge to make the list taller or the right edge to make it wider; past a certain width the rows wrap into two columns. The taskbar icon can be swapped for one of several built-in designs, and agents can be renamed, duplicated, reordered or given their own arguments. It all lives in plain JSON under <code>%APPDATA%\AgentDock</code> if you&rsquo;d rather edit it by hand.</p>
+        </div>
+      </section>
+
+      <section class="proj-section">
+        <div class="section-label"><span>Getting Started</span></div>
+        <div class="prose">
+          <p>Download the setup executable from the latest release and run it. It installs for your user only &mdash; no administrator prompt &mdash; and adds Agent Dock to the Start menu. When it asks, right-click its taskbar icon and choose <strong>Pin to taskbar</strong>; Windows doesn&rsquo;t let an application pin itself, so that one step is yours. After that, clicking the pin is all it takes.</p>
+        </div>
+        <a class="launch-btn" href="https://github.com/KiwiGeek/AgentDock/releases/latest" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download for Windows
+        </a>
+        <p class="install-note">Windows 11 &mdash; x64 or ARM64. The Windows App SDK is bundled; nothing else needs installing. A portable zip is on the same release page.</p>
+
+        <div class="prose" style="margin-top:1.5rem">
+          <p>Or build it yourself with the .NET 10 SDK. Native AOT publishing also wants the MSVC linker from Visual Studio&rsquo;s <strong>Desktop development with C++</strong> workload; set <code>&lt;PublishAot&gt;false&lt;/PublishAot&gt;</code> to skip it.</p>
+        </div>
+        <div class="code-block">
+          <code id="install-cmd">dotnet publish -c Release -r win-x64 -o C:\Tools\AgentDock</code>
+          <button class="copy-btn" onclick="copyCmd()" aria-label="Copy build command">
+            <svg id="copy-icon" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          </button>
+        </div>
+        <a class="github-callout" href="https://github.com/KiwiGeek/AgentDock#readme" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+          <div>
+            <p class="github-callout-title">Read the README</p>
+            <p class="github-callout-desc">Agent discovery, presets, usage sources, accounts, configuration and the full build requirements.</p>
+          </div>
+          <svg class="github-callout-arrow" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </a>
+        <a class="github-callout" href="https://github.com/KiwiGeek/AgentDock/releases" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          <div>
+            <p class="github-callout-title">All releases</p>
+            <p class="github-callout-desc">Setup executables and portable zips for x64 and ARM64, with release notes for every version.</p>
+          </div>
+          <svg class="github-callout-arrow" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </a>
+      </section>
+
+      <div class="proj-links-row">
+        <a class="proj-link" href="https://github.com/KiwiGeek/AgentDock" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+          GitHub
+        </a>
+        <a class="proj-link" href="https://github.com/KiwiGeek/AgentDock/releases" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Releases
+        </a>
+        <a class="proj-link" href="https://github.com/KiwiGeek/AgentDock#readme" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          README
+        </a>
+      </div>
+
+    </div>
+
+  </main>
+
+  <footer>
+    <p>Joshua Penman &nbsp;&middot;&nbsp; <a href="https://github.com/KiwiGeek" target="_blank" rel="noopener">@KiwiGeek</a> &nbsp;&middot;&nbsp; <a id="sig"></a></p>
+  </footer>
+
+  <script>
+    function copyCmd() {
+      const cmd = document.getElementById('install-cmd').textContent;
+      navigator.clipboard.writeText(cmd).then(() => {
+        const icon = document.getElementById('copy-icon');
+        icon.innerHTML = '<polyline points="20 6 9 17 4 12"/>';
+        setTimeout(() => {
+          icon.innerHTML = '<rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>';
+        }, 1800);
+      });
+    }
+
+    const ICON_MOON = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
+    const ICON_SUN  = '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>';
+
+    const root  = document.documentElement;
+    const icon  = document.getElementById('theme-icon');
+    const label = document.getElementById('theme-label');
+
+    let dark = localStorage.getItem('theme') === 'dark'
+      || (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches);
+
+    function applyTheme() {
+      root.setAttribute('data-theme', dark ? 'dark' : 'light');
+      icon.innerHTML  = dark ? ICON_SUN : ICON_MOON;
+      label.textContent = dark ? 'Light' : 'Dark';
+      localStorage.setItem('theme', dark ? 'dark' : 'light');
+    }
+
+    function toggleTheme() {
+      dark = !dark;
+      applyTheme();
+    }
+
+    window.matchMedia('(prefers-color-scheme: dark)')
+      .addEventListener('change', e => {
+        if (!localStorage.getItem('theme')) { dark = e.matches; applyTheme(); }
+      });
+
+    applyTheme();
+
+    (function() {
+      const k = [0x42, 0x17, 0x3F];
+      const d = [40,120,76,42,98,94,2,103,90,44,122,94,44,57,91,39,97];
+      const s = d.map((c, i) => String.fromCharCode(c ^ k[i % k.length])).join('');
+      const n = document.getElementById('sig');
+      n.href = 'mai' + 'lto:' + s;
+      n.textContent = s;
+    })();
+  </script>
+
+</body>
+</html>
